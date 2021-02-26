@@ -19,6 +19,10 @@ class UserLogic
         $params['c_id'] = $companyInfo['id'];
         $params['accid'] = strtolower($params['accid']);
         $params['token'] = password_hash($params['c_id'].$params['accid'],PASSWORD_DEFAULT);
+        if (isset($params['password'])) 
+        {
+            $params['password'] = password_hash($params['password'],PASSWORD_DEFAULT);
+        }
         unset($params['appid']);
         unset($params['secret']);
         return $params;
@@ -36,10 +40,42 @@ class UserLogic
     public function checkIsRepeat($params,$companyInfo) 
     {
         $userModel = new userModel();
-        $result = $userModel->getUserByAccidAndCid($params['accid'],$companyInfo['id']);
-        if (!$result) {
+        $where['accid'] = $params['accid'];
+        $where['c_id'] = $companyInfo['id'];
+        $result = $userModel->getUserInfo($where);
+        if ($result) {
             return_json(array('code'=>'3002','msg'=>'该accid标识已存在'));
         }
+    }
+
+    /**
+     * 用户登录
+     *
+     * @Author 孙双洋 
+     * @DateTime 2021-02-26
+     * @param [type] $where
+     * accid
+     * password
+     * appid
+     * @return void
+     */
+    public function userLogin($check_param,$companyInfo)
+    {
+        $queryUserWhere['accid'] = $check_param['accid'];
+        $queryUserWhere['appid'] = $companyInfo['appid'];
+        
+        $userModel = new userModel();
+        $result = $userModel->getUserInfo($queryUserWhere);
+
+        if (!$result) {
+            return_json(array('code'=>3001,'msg'=>'账号错误'));
+        } 
+        if ($result['password'] != password_hash($check_param['password'],PASSWORD_DEFAULT)) {
+            return_json(array('code'=>3001,'msg'=>'密码错误'));
+        }
+
+        return $result['token'];
+        
     }
 
 }

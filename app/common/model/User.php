@@ -7,14 +7,15 @@ class User extends Model
 {
 
     /**
-     * 通过accid和c_id获取用户信息
+     * 根据where条件查询单个用户信息
      *
      * @Author 孙双洋 
-     * @DateTime 2021-02-25
+     * @DateTime 2021-02-26
+     * @param [type] $where
      * @return void
      */
-    public function getUserByAccidAndCid($accid, $c_id)
+    public function getUserInfo($where)
     {
-        return $this-> where('accid',$accid) -> where('c_id',$c_id) -> find();
+        return $this-> where($where)  -> find();
     }
 }

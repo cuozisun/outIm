@@ -31,19 +31,23 @@ class Company extends BaseController
      * @Author 孙双洋 
      * @DateTime 2021-02-24
      * @param Request $request
-     * @return void
+     * @return appid 公司对应的appid
      */
     public function registeCompany(Request $request)
     {
-        if (!$request->has('name') || !$request->has('type')) {
-            return_json(array('code'=>'2001','msg'=>'缺少必要参数'));
-        }
+        $check_param = array('name','type');
+        check_must_param($request,$check_param);
         $insertData = $request->param();
+        
         //生成数据
         $insertData = $this->CompanyLogic->makeRegisteCompany($insertData);
+
         $result = $this->CompanyModel->save($insertData);
+        
         if ($result) {
-            return_json(array('code'=>'1001','注册公司成功'));
+            //生成返回信息
+            $return['appid'] = $insertData['appid'];
+            return_json(array('code'=>'1001','注册公司成功','data'=>$return));
         } else {
             return_json(array('code'=>'4001','注册公司失败,请联系管理员'));
         }

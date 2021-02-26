@@ -5,8 +5,20 @@ use think\Model;
 
 class Company extends Model
 {
-    public function getCompanyInfo($info)
+
+    /**
+     * 根据appid,secret查询公司信息
+     *
+     * @Author 孙双洋 
+     * @DateTime 2021-02-26
+     * @param [type] $info
+     * @return void
+     */
+    public function getCompanyInfo($where)
     {
-        return $this->where('appid',$info['appid']) -> where('secret',$info['secret']) -> find();
+        return $this->where($where) -> find();
     }
+
+
+    
 }

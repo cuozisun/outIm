@@ -11,7 +11,7 @@
  Target Server Version : 50553
  File Encoding         : 65001
 
- Date: 25/02/2021 19:05:27
+ Date: 26/02/2021 19:00:21
 */
 
 SET NAMES utf8mb4;
@@ -87,6 +87,7 @@ CREATE TABLE `out_user`  (
   `sex` tinyint(255) NULL DEFAULT 0 COMMENT '性别:0:女;1男',
   `u_is_close` tinyint(255) NULL DEFAULT 0 COMMENT '用户是否被关闭:0:否;1:是',
   `token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '用户登录使用token,唯一',
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '单纯im功能用户用于登录使用',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `token`(`token`(191)) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户表' ROW_FORMAT = Compact;
@@ -94,6 +95,6 @@ CREATE TABLE `out_user`  (
 -- ----------------------------
 -- Records of out_user
 -- ----------------------------
-INSERT INTO `out_user` VALUES (1, 3, '123', 'heh', 0, 0, 0, '$2y$10$o0tdRSgSIORQEz6ddY6/ce2KCLOrbojzQxRvESk2uydnZvCcYPdR2');
+INSERT INTO `out_user` VALUES (1, 3, '123', 'heh', 0, 0, 0, '$2y$10$o0tdRSgSIORQEz6ddY6/ce2KCLOrbojzQxRvESk2uydnZvCcYPdR2', '$2y$10$o0tdRSgSIORQEz6ddY6/ce2KCLOrbojzQxRvESk2uydnZvCcYPdR2');
 
 SET FOREIGN_KEY_CHECKS = 1;

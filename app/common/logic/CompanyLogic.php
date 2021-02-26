@@ -1,8 +1,8 @@
 <?php
 namespace app\common\logic;
 
-
-use app\common\model\JoinPlan;
+use app\common\model\Company as CompanyModel;
+use app\common\model\JoinPlan as JoinPlanModel;
 
 
 class CompanyLogic
@@ -27,7 +27,7 @@ class CompanyLogic
     }
 
     /**
-     * 根据套餐生成过期时间允许人数
+     * 根据套餐生成过期时间,允许人数
      *
      * @Author 孙双洋 
      * @DateTime 2021-02-24
@@ -36,8 +36,8 @@ class CompanyLogic
      */
     public function joinPlant($insertData)
     {
-        $JoinPlan = new JoinPlan();
-        $planData = $JoinPlan->find($insertData['type']);
+        $JoinPlanModel = new JoinPlanModel();
+        $planData = $JoinPlanModel->find($insertData['type']);
         if ($planData) {
             if ($planData['effective_day'] === 0) {
                 $insertData['fire_time'] = 0;
@@ -69,6 +69,27 @@ class CompanyLogic
             return_json(array('code'=>'5001','账号已过期'));
         } elseif($companyInfo['access_num']!==0 && ($companyInfo['access_num']<=$companyInfo['now_num'])) {
             return_json(array('code'=>'5001','注册人数已达到上限'));
+        }
+    }
+
+
+    /**
+     * Undocumented function
+     *
+     * @Author 孙双洋 
+     * @DateTime 2021-02-26
+     * @param [type] $check_param
+     * @return void
+     */
+    public function getCompanyInfo($check_param)
+    {
+        $queryCompanyWhere['appid'] = $check_param['appid'];
+        $companyModel = new companyModel();
+        $companyInfo = $companyModel->getCompanyInfo($check_param);
+        if (!$companyInfo) {
+            return_json(array('code'=>'3001','msg'=>'无与appid匹配公司'));
+        } else {
+            return $companyInfo;
         }
     }
 
