@@ -96,9 +96,10 @@ class User extends BaseController
             return_json(array('code'=>'3001','登录失败'));
         } 
 
-        //
+        //查询存储信息,好友管理,聊天记录,群记录,消息请求
         
         return_json(array('code'=>'1001','登录成功','data'=>$result));
         
     }
+
 }

@@ -18,4 +18,12 @@ class User extends Model
     {
         return $this-> where($where)  -> find();
     }
+
+
+    public function unionGetuserInfo($searchinfo)
+    {
+        $subQuerya = $this ->where('accid', $searchinfo) ->buildSql();
+        $subQueryb = $this ->where('tel', $searchinfo) ->buildSql();
+        return $this->field('*') ->table('think_user_0') ->union($subQuerya) ->union($subQueryb) ->select();
+    }
 }

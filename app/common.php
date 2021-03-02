@@ -22,6 +22,7 @@ function return_json($array = [])
      * 3002数据库已有改数据
      * 4001数据库操作失败
      * 5001规则类失败
+     * 600x系统消息
      */
     exit(json_encode($array));
 }
