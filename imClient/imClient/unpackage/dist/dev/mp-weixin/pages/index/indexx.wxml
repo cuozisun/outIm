@@ -1,0 +1,1 @@
+<view><view style="margin-top:10vh;"></view><view>账号:18831913100</view><view>nick_name:哈哈哈</view><view>appid:9046c33bace33e2a17c71a21c34dabc1</view><button data-event-opts="{{[['tap',[['regiest',['$event']]]]]}}" bindtap="__e">创建用户账号</button><view>系统内部唯一标识:{id}</view><button data-event-opts="{{[['tap',[['login',['$event']]]]]}}" bindtap="__e">登录</button></view>

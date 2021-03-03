@@ -2,6 +2,7 @@
 	import Vue from 'vue'
 	export default {
 		onLaunch: function() {
+			var that = this;
 			uni.getSystemInfo({
 				success: function(e) {
 					// #ifndef MP
@@ -26,7 +27,23 @@
 					// #endif
 				}
 			})
-
+			var socket_flag = false;
+			//连接websoket
+			// var  SocketTask = uni.connectSocket({
+			// 	url: 'ws://127.0.0.1:8282',
+			// 	fail:function(res){
+			// 	console.log("连接服务器websocket_失败",res);
+			// 	},
+			// 	success:function(res){
+			// 		console.log("连接服务器websocket_成功",res);
+			// 		socket_flag = true;
+			// 	},
+			// 	complete:function(res){
+			// 		console.log("连接服务器websocket_完成",res);
+			// 	}
+			// });
+			// that.globalData.SocketTask = SocketTask;
+			
 			Vue.prototype.ColorList = [{
 					title: '嫣红',
 					name: 'red',
@@ -110,6 +127,9 @@
 		},
 		onHide: function() {
 			console.log('App Hide')
+		},
+		globalData: {  
+			localhost:"http://localhost/index.php/index",
 		}
 
 	}

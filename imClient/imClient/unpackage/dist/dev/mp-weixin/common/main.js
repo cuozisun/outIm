@@ -23,6 +23,20 @@ _vue.default.component('plugin', plugin);var cuCustom = function cuCustom() {__w
 _vue.default.component('cu-custom', cuCustom);
 
 _vue.default.config.productionTip = false;
+_vue.default.prototype.setData = function (e) {
+  if (!e) {
+    console.log('传值为空');
+    return;
+  }
+  if (typeof e == "object" && Object.prototype.toString.call(e).toLowerCase() == "[object object]" && !e.length) {
+    for (var index in e) {
+      this[index] = e[index];
+    }
+  } else {
+    console.log('传值不是json对象');
+    return;
+  }
+};
 
 _App.default.mpType = 'app';
 
@@ -103,6 +117,7 @@ __webpack_require__.r(__webpack_exports__);
 var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ 2));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}var _default =
 {
   onLaunch: function onLaunch() {
+    var that = this;
     uni.getSystemInfo({
       success: function success(e) {
 
@@ -127,6 +142,22 @@ var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ 2));function _i
 
       } });
 
+    var socket_flag = false;
+    //连接websoket
+    // var  SocketTask = uni.connectSocket({
+    // 	url: 'ws://127.0.0.1:8282',
+    // 	fail:function(res){
+    // 	console.log("连接服务器websocket_失败",res);
+    // 	},
+    // 	success:function(res){
+    // 		console.log("连接服务器websocket_成功",res);
+    // 		socket_flag = true;
+    // 	},
+    // 	complete:function(res){
+    // 		console.log("连接服务器websocket_完成",res);
+    // 	}
+    // });
+    // that.globalData.SocketTask = SocketTask;
 
     _vue.default.prototype.ColorList = [{
       title: '嫣红',
@@ -211,7 +242,9 @@ var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ 2));function _i
   },
   onHide: function onHide() {
     console.log('App Hide');
-  } };exports.default = _default;
+  },
+  globalData: {
+    localhost: "http://localhost/index.php/index" } };exports.default = _default;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
 
 /***/ }),

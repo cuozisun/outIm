@@ -1,5 +1,6 @@
 {
   "pages": [
+    "pages/index/indexx",
     "pages/index/index",
     "pages/basics/layout",
     "pages/basics/background",
@@ -31,14 +32,13 @@
   "window": {
     "navigationBarBackgroundColor": "#0081ff",
     "navigationBarTitleText": "ColorUi for UniApp",
-    "navigationStyle": "custom",
     "navigationBarTextStyle": "white"
   },
+  "permission": {},
   "usingComponents": {
     "basics": "/pages/basics/home",
     "components": "/pages/component/home",
     "plugin": "/pages/plugin/home",
     "cu-custom": "/colorui/components/cu-custom"
-  },
-  "sitemapLocation": "sitemap.json"
+  }
 }

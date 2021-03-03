@@ -14,6 +14,20 @@ import cuCustom from './colorui/components/cu-custom.vue'
 Vue.component('cu-custom',cuCustom)
 
 Vue.config.productionTip = false
+Vue.prototype.setData = function (e){
+	if(!e){
+		console.log('传值为空');
+		return;
+	}
+	if(typeof(e) == "object" && Object.prototype.toString.call(e).toLowerCase() == "[object object]" && !e.length){
+		for (var index in e){
+		    this[index] = e[index];
+		}
+	}else{
+		console.log('传值不是json对象');
+		return;
+	}
+}
 
 App.mpType = 'app'
 

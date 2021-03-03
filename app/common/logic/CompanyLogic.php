@@ -85,7 +85,7 @@ class CompanyLogic
     {
         $queryCompanyWhere['appid'] = $check_param['appid'];
         $companyModel = new companyModel();
-        $companyInfo = $companyModel->getCompanyInfo($check_param);
+        $companyInfo = $companyModel->getCompanyInfo($queryCompanyWhere);
         if (!$companyInfo) {
             return_json(array('code'=>'3001','msg'=>'无与appid匹配公司'));
         } else {

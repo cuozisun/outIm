@@ -5,8 +5,7 @@ use think\Request;
 use app\BaseController;
 use app\common\logic\UserLogic;
 use app\common\logic\CompanyLogic;
-use app\common\model\User as UserMdel;
-use app\common\model\Company as companyModel;
+use app\common\model\User as UserModel;
 
 
 class User extends BaseController
@@ -43,8 +42,7 @@ class User extends BaseController
 
         //匹配与appid,secret相对的公司
         $CompanyLogic = new CompanyLogic();
-        $companyInfo = $CompanyLogic->getCompanyInfo($check_param);
-        
+        $companyInfo = $CompanyLogic->getCompanyInfo($params);
         //检查公司是否可注册
         $CompanyLogic->checkCompanyCanRegiste($companyInfo);
 
@@ -56,50 +54,15 @@ class User extends BaseController
         $params = $UserLogic->makeRegisteUser($params,$companyInfo);
 
         //插入数据库
-        $UserMdel = new UserMdel();
-        $result = $UserMdel->save($params);
+        $UserModel = new UserModel();
+        $result = $UserModel->save($params);
         if ($result) {
-            return_json(array('code'=>'1001','msg'=>'用户创建成功','token'=>$params['token']));
+            return_json(array('code'=>'1001','msg'=>'用户创建成功','uid'=>$UserModel->id));
         } else {
             return_json(array('code'=>'4001','msg'=>'用户创建失败'));
         }
     }
 
-    /**
-     * 纯粹im软件使用登录功能
-     *
-     * @Author 孙双洋 
-     * @DateTime 2021-02-26
-     * @return void
-     * 
-     * 必须参数
-     * accid
-     * password
-     * appid
-     * secret
-     */
-    public function userLogin(Request $request)
-    {
-        $check_param = array('accid', 'appid', 'password');
-        check_must_param($request, $check_param);
-        $params = $request->param();
 
-        //匹配与appid相对的公司
-        $CompanyLogic = new CompanyLogic();
-        $companyInfo = $CompanyLogic->getCompanyInfo($params);
-
-        //匹配账号
-        $UserLogic = new UserLogic();
-        $result = $UserLogic->userLogin($params,$companyInfo);
-        
-        if (!$result) {
-            return_json(array('code'=>'3001','登录失败'));
-        } 
-
-        //查询存储信息,好友管理,聊天记录,群记录,消息请求
-        
-        return_json(array('code'=>'1001','登录成功','data'=>$result));
-        
-    }
 
 }

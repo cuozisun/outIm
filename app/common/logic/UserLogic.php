@@ -1,7 +1,9 @@
 <?php
 namespace app\common\logic;
 
+use think\facade\Cache;
 use app\common\model\User as userModel;
+use app\common\model\FriendShip as friendShipModel;
 
 class UserLogic
 {
@@ -74,8 +76,96 @@ class UserLogic
             return_json(array('code'=>3001,'msg'=>'密码错误'));
         }
 
-        return $result['token'];
+        return $result['id'];
         
+    }
+
+    /**
+     * 通过搜索条件联合查询tel和账号
+     *
+     * @Author 孙双洋 
+     * @DateTime 2021-03-03
+     * @param [type] $searchinfo
+     * @return void
+     */
+    public function getUserInfo($searchinfo)
+    {
+        $userModel = new userModel();
+        $result = $userModel->unionGetuserInfo($searchinfo);
+        if (!$result) {
+            return_json(array('code'=>3002,'msg'=>'该用户不存在'));
+        }
+        return $result;
+    }
+
+
+    /**
+     * 同意好友请求
+     *
+     * @Author 孙双洋 
+     * @DateTime 2021-03-03
+     * @param [type] $params
+     * @return void
+     */
+    public function agreeRequest($params)
+    {
+        $key = $params['uid'].'_'.$params['otheruid'].'_1';
+        $status = Cache::store('redis')->get($key);
+
+
+        $userModel = new userModel();
+        $friendShipModel = new friendShipModel();
+        
+        switch ($status) {
+            case '0':
+            case '1':
+                //删除redis
+                Cache::store('redis')->delete($key);
+                break;
+            default:
+                # key的失效已过
+                break;
+        }
+        $insertData = [];
+        $insertData['user_id'] = $params['uid'];
+        $insertData['friend_id'] = $params['otheruid'];
+        $result = $friendShipModel->add($insertData);
+
+
+        if (!$result) {
+            return_json(array('code'=>4001,'msg'=>'写入数据失败'));
+        } 
+        //查询个人信息
+        $where['user_id'] = $params['otheruid'];
+        $uinfo['otherinfo'] = $userModel->getUserInfo($where);
+        $where['user_id'] = $params['uid'];
+        $uinfo['uinfo'] = $userModel->getUserInfo($where);
+        return $uinfo;
+    }
+
+    /**
+     * 拒绝好友请求
+     *
+     * @Author 孙双洋 
+     * @DateTime 2021-03-03
+     * @param [type] $params
+     * @return void
+     */
+    public function refuseRequest($params)
+    {
+        $key = $params['uid'].'_'.$params['otheruid'].'_1';
+        $status = Cache::store('redis')->get($key);
+        switch ($status) {
+            case '0':
+            case '1':
+                //删除redis
+                Cache::store('redis')->delete($key);
+                break;
+            default:
+                # key的失效已过
+                break;
+        }
+        return true;
     }
 
 }
