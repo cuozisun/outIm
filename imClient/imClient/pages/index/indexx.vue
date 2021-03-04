@@ -5,7 +5,7 @@
         <view>nick_name:哈哈哈</view>
         <view>appid:9046c33bace33e2a17c71a21c34dabc1</view>
         <button @tap="regiest"> 创建用户账号</button>
-        <view>系统内部唯一标识:{id}</view>
+        <view>系统内部唯一标识:{{id}}</view>
         <button @tap="login">登录</button>
     </view>
 </template>
@@ -64,13 +64,29 @@
                 });
                 SocketTask.onMessage(function (res) {
                     console.log(res);
-                    that.binduid(res.data)
+                    var info = JSON.parse(res.data); 
+                    if (info.code === '6005') {
+                        that.binduid(info.data)
+                        //启动定时任务每10秒发送心跳
+                        setInterval(function () {
+                            console.log('发送心跳')
+                    　　　　SocketTask.send({
+                                data:'{"type":"ping"}'
+                            })
+                　　　　}, 9000);
+                    } else {
+                        SocketTask.close();
+                    }
+                    
+                });
+                SocketTask.onClose(function (res){
+                    console.log('连接断开')
                 })
                 
             },
+            
             binduid:function(client_id)
             {
-                
                 var that = this;
                 server.getJSON('/api/bindUid',{
                     uid:that.id,

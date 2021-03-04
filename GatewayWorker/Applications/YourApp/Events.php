@@ -41,7 +41,8 @@ class Events
         // 向所有人发送
         // Gateway::sendToAll("$client_id login\r\n");
         // 将clinet_id返回
-        Gateway::sendToClient($client_id, "$client_id");
+        $data = json_encode(array('code'=>'6005','msg'=>'连接成功','data'=>$client_id));
+        Gateway::sendToClient($client_id, $data);
     }
     
    /**
@@ -52,7 +53,7 @@ class Events
    public static function onMessage($client_id, $message)
    {
         // 向所有人发送 
-        Gateway::sendToAll("$client_id said $message\r\n");
+        // Gateway::sendToAll("$client_id said $message\r\n");
    }
    
    /**
