@@ -8,19 +8,23 @@
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(createApp) {__webpack_require__(/*! uni-pages */ 4);var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ 2));
-var _App = _interopRequireDefault(__webpack_require__(/*! ./App */ 5));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function ownKeys(object, enumerableOnly) {var keys = Object.keys(object);if (Object.getOwnPropertySymbols) {var symbols = Object.getOwnPropertySymbols(object);if (enumerableOnly) symbols = symbols.filter(function (sym) {return Object.getOwnPropertyDescriptor(object, sym).enumerable;});keys.push.apply(keys, symbols);}return keys;}function _objectSpread(target) {for (var i = 1; i < arguments.length; i++) {var source = arguments[i] != null ? arguments[i] : {};if (i % 2) {ownKeys(Object(source), true).forEach(function (key) {_defineProperty(target, key, source[key]);});} else if (Object.getOwnPropertyDescriptors) {Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));} else {ownKeys(Object(source)).forEach(function (key) {Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));});}}return target;}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}var basics = function basics() {__webpack_require__.e(/*! require.ensure | pages/basics/home */ "pages/basics/home").then((function () {return resolve(__webpack_require__(/*! ./pages/basics/home.vue */ 200));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};
+var _App = _interopRequireDefault(__webpack_require__(/*! ./App */ 5));
 
 
-_vue.default.component('basics', basics);var components = function components() {__webpack_require__.e(/*! require.ensure | pages/component/home */ "pages/component/home").then((function () {return resolve(__webpack_require__(/*! ./pages/component/home.vue */ 207));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};
 
 
-_vue.default.component('components', components);var plugin = function plugin() {__webpack_require__.e(/*! require.ensure | pages/plugin/home */ "pages/plugin/home").then((function () {return resolve(__webpack_require__(/*! ./pages/plugin/home.vue */ 214));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};
 
 
-_vue.default.component('plugin', plugin);var cuCustom = function cuCustom() {__webpack_require__.e(/*! require.ensure | colorui/components/cu-custom */ "colorui/components/cu-custom").then((function () {return resolve(__webpack_require__(/*! ./colorui/components/cu-custom.vue */ 221));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};
 
 
-_vue.default.component('cu-custom', cuCustom);
+
+
+
+
+
+var _websocketStore = _interopRequireDefault(__webpack_require__(/*! @/common/websocketStore.js */ 11));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function ownKeys(object, enumerableOnly) {var keys = Object.keys(object);if (Object.getOwnPropertySymbols) {var symbols = Object.getOwnPropertySymbols(object);if (enumerableOnly) symbols = symbols.filter(function (sym) {return Object.getOwnPropertyDescriptor(object, sym).enumerable;});keys.push.apply(keys, symbols);}return keys;}function _objectSpread(target) {for (var i = 1; i < arguments.length; i++) {var source = arguments[i] != null ? arguments[i] : {};if (i % 2) {ownKeys(Object(source), true).forEach(function (key) {_defineProperty(target, key, source[key]);});} else if (Object.getOwnPropertyDescriptors) {Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));} else {ownKeys(Object(source)).forEach(function (key) {Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));});}}return target;}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;}var basics = function basics() {__webpack_require__.e(/*! require.ensure | pages/basics/home */ "pages/basics/home").then((function () {return resolve(__webpack_require__(/*! ./pages/basics/home.vue */ 206));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};_vue.default.component('basics', basics);var components = function components() {__webpack_require__.e(/*! require.ensure | pages/component/home */ "pages/component/home").then((function () {return resolve(__webpack_require__(/*! ./pages/component/home.vue */ 213));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};_vue.default.component('components', components);var plugin = function plugin() {__webpack_require__.e(/*! require.ensure | pages/plugin/home */ "pages/plugin/home").then((function () {return resolve(__webpack_require__(/*! ./pages/plugin/home.vue */ 220));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};_vue.default.component('plugin', plugin);var cuCustom = function cuCustom() {__webpack_require__.e(/*! require.ensure | colorui/components/cu-custom */ "colorui/components/cu-custom").then((function () {return resolve(__webpack_require__(/*! ./colorui/components/cu-custom.vue */ 227));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};_vue.default.component('cu-custom', cuCustom);
+
+_vue.default.prototype.$websocket = _websocketStore.default;
 
 _vue.default.config.productionTip = false;
 _vue.default.prototype.setData = function (e) {

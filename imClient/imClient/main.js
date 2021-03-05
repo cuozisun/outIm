@@ -13,6 +13,10 @@ Vue.component('plugin',plugin)
 import cuCustom from './colorui/components/cu-custom.vue'
 Vue.component('cu-custom',cuCustom)
 
+import websocket from '@/common/websocketStore.js'
+ 
+Vue.prototype.$websocket = websocket;
+
 Vue.config.productionTip = false
 Vue.prototype.setData = function (e){
 	if(!e){

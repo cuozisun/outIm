@@ -1,6 +1,7 @@
 {
   "pages": [
-    "pages/index/indexx",
+    "pages/index/login",
+    "pages/index/chat",
     "pages/index/index",
     "pages/basics/layout",
     "pages/basics/background",
@@ -40,6 +41,5 @@
     "components": "/pages/component/home",
     "plugin": "/pages/plugin/home",
     "cu-custom": "/colorui/components/cu-custom"
-  },
-  "sitemapLocation": "sitemap7.json"
+  }
 }

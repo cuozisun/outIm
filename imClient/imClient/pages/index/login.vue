@@ -35,7 +35,8 @@
                 handler: function() {
                     let that = this
                     let sMsg = that.socketMsgs
-                    console.log('聊天页面的接收')
+                    console.log(sMsg);
+                    console.log('登录页面的接收')
                     
                 }
             }
@@ -63,6 +64,18 @@
                 let that = this
                 that.$websocket.commit('setUid',that.id)
                 that.$websocket.dispatch('webSocketInit');//初始化ws
+                
+                if (that.$websocket.state.webSocketIsReady) {
+                    uni.navigateTo({
+                        url: '/pages/index/chat'
+                    })
+                } else {
+                    that.$websocket.commit('setCallbakc',res => {
+                        uni.navigateTo({
+                            url: '/pages/index/chat'
+                        })
+                    })
+                }
             },
         }
 	}

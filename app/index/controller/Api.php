@@ -98,11 +98,15 @@ class Api extends BaseController
 
     public function sendToUid(Request $request)
     {
-        $check_param = array('uid','data');
+        $check_param = array('uid','data','otheruid');
         check_must_param($request, $check_param);
         $params = $request->param();
+        $data = [];
 
-        Gateway::sendToUid($params['uid'], $params['data']);
+        $data['from_id'] = $params['uid'];
+        $data['data'] = $params['data'];
+        $data = json_encode(array('code'=>6006,'msg'=>'接收消息',$data));
+        Gateway::sendToUid($params['otheruid'], $data);
     }
 
     public function joinGroup(Request $request)
