@@ -2,8 +2,11 @@
 namespace app\index\controller;
 
 use think\Request;
-use app\BaseController;
+use think\facade\Cache;
+
 use GatewayClient\Gateway;
+
+use app\BaseController;
 use app\common\logic\UserLogic;
 use app\common\logic\CompanyLogic;
 
@@ -105,7 +108,31 @@ class Api extends BaseController
 
         $data['from_id'] = $params['uid'];
         $data['data'] = $params['data'];
-        $data = json_encode(array('code'=>6006,'msg'=>'接收消息',$data));
+
+        //存入redis中
+        // Cache::store('redis')->set($data['from_id'].'1', [1,2,3]);
+        // Cache::store('redis')->push($data['from_id'].'1', '33333');
+
+        $handler = Cache::store('redis')->handler();
+
+        //将对话关系存入对话关系库
+        $handler::push($params['uid'],$params['otheruid']);
+        $handler::push($params['otheruid'],$params['uid']);
+
+        $key = max($params['otheruid'],$params['uid']).'_'.min($params['otheruid'],$params['uid']);
+        
+        //存储聊天内容
+        if ($handler->llen($key)>=100) {
+            $handler->rpop($key,"{'".$params['uid']."':".$params['data']."}");
+        }
+        $handler->lpush($key,"{'".$params['uid']."':".$params['data']."}");
+
+
+        // $length = $handler->lpush($params['uid'],$params['otheruid']);
+        // $length = $handler->lrange($data['from_id'].'3',0,-1);
+        // dump($length);
+        
+        $data = json_encode(array('code'=>6006,'msg'=>'接收消息','data'=>$data));
         Gateway::sendToUid($params['otheruid'], $data);
     }
 

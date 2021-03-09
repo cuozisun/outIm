@@ -13,9 +13,11 @@ Vue.component('plugin',plugin)
 import cuCustom from './colorui/components/cu-custom.vue'
 Vue.component('cu-custom',cuCustom)
 
-import websocket from '@/common/websocketStore.js'
- 
-Vue.prototype.$websocket = websocket;
+
+//把vuex定义成全局组件
+import store from '@/store'
+Vue.prototype.$store = store
+
 
 Vue.config.productionTip = false
 Vue.prototype.setData = function (e){
@@ -36,7 +38,8 @@ Vue.prototype.setData = function (e){
 App.mpType = 'app'
 
 const app = new Vue({
-    ...App
+    ...App,
+	store
 })
 app.$mount()
 

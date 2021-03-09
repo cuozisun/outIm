@@ -3,11 +3,11 @@ import Vuex from 'vuex'
 import server from '@/node_modules/prettier/server.js';
 
 Vue.use(Vuex)
- 
- 
-export default new Vuex.Store({
-	state: {
-		socketTask: null, // ws链接
+
+const store = new Vuex.Store({
+    
+    state: {
+        socketTask: null, // ws链接
 		webSocketPingTimer: null, // 心跳定时器
 		webSocketPingTime: 9000, // 心跳的间隔，当前为 10秒,
 		webSocketReconnectCount: 0, // 重连次数
@@ -17,15 +17,21 @@ export default new Vuex.Store({
 		sid: null, //ws登录token
 		msg: null, //接收到的信息
 		Callback:null,//异步回调时间
-	},
-	getters: {
+        login:false,
+
+        //展示数据
+        takeList:[{'name':'xixi','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png'}],
+        temporaryList:[],
+        test:'123',
+    },
+    getters: {
 		// 获取接收的信息
 		socketMsgs: state => {
 			return state.msg
 		}
 	},
-	mutations: {
-		//发送http请求登录后设置用户id 用于ws登录
+    mutations: {
+        //发送http请求登录后设置用户id 用于ws登录
 		setUid(state, uid) {
 			state.uid = uid
 		},
@@ -53,34 +59,51 @@ export default new Vuex.Store({
 			// ws连接开启后登录验证
 			state.socketTask.onOpen((res) => {
 				console.log("WebSocket连接正常打开中...！");
-
-
 				// 注：只有连接正常打开中 ，才能正常收到消息
 				state.socketTask.onMessage((res) => {
 					console.log("收到服务器内容：" + res.data);
 					state.msg = JSON.parse(res.data)
-					if (state.msg.code === '6005') {
-                        that.commit('bindUid',state.msg.data)
-						that.commit('webSocketPing')
-						// that.commit('webSocketClose')
-						if (that.state.Callback) {
-							that.state.Callback();
-						}
-                    } 
+					//判断接收消息类型进行不同处理
+					switch (state.msg.code) {
+						case '6001'://请求添加好友
+							
+							break;
+						case '6002'://同意添加好友成功
+
+							break;
+						case '6003'://请求添加好友成功
+					
+							break;
+						case '6004'://查看个人信息
+				
+							break;
+						case '6005'://长连接连接成功
+							that.commit('bindUid',state.msg.data)
+							that.commit('webSocketPing')
+							// that.commit('webSocketClose')
+							if (that.state.Callback) {
+								that.state.Callback();
+							}
+							break;
+						case '6006'://接到他人消息
+							
+							break;
+						default:
+							break;
+					}
+					
 				});
  
 			});
  
 			// 链接开启后登录验证
 			state.socketTask.onError((errMsg) => {
-				console.log(errMsg)
 				console.log("ws连接异常")
 				that.commit('webSocketClose')
 			});
  
 			// 链接开启后登录验证
 			state.socketTask.onClose((errMsg) => {
-				console.log(errMsg)
 				console.log("ws连接关闭")
 				that.commit('webSocketClose')
 			});
@@ -133,7 +156,7 @@ export default new Vuex.Store({
 				if (!that.state.webSocketIsReady) {
 					return false;
 				}
-				console.log("心跳");
+				// console.log("心跳");
 				const payload = {"type":"ping"}
 				that.commit('webSocketSend', payload);
 				clearTimeout(that.state.webSocketPingTimer);
@@ -172,20 +195,25 @@ export default new Vuex.Store({
 			that.state.socketTask.send({
 				data: JSON.stringify(payload),
 				fail: function(res){
-					console.log("发送失败")
+					// console.log("发送失败")
 					that.state.sendMsgStatus = true
 				},
 				success: function(res){
-					console.log("发送成功")
+					// console.log("发送成功")
 					that.state.sendMsgStatus = false
 				}
 			})
-		}
-	},
- 
- 
-	actions: {
-		webSocketInit({
+		},
+        pushTakeList(state){
+            state.takeList.push({'name':'haha','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png'})
+            console.log(state.takeList)
+        },
+        add(state){
+            state.test = '456'
+        }
+    },
+    actions: {
+        webSocketInit({
 			commit
 		}, url) {
 			commit('webSocketInit', url)
@@ -195,5 +223,7 @@ export default new Vuex.Store({
 		}, p) {
 			commit('webSocketSend', p)
 		}
-	}
+    },
+    
 })
+export default store

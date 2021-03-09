@@ -7,12 +7,17 @@
         <button @tap="regiest"> 创建用户账号</button>
         <view>系统内部唯一标识:{{id}}</view>
         <button @tap="login">登录</button>
+        <view>{{test}}</view>
     </view>
 </template>
 
 <script>
 	const app = getApp();
     import server from '@/node_modules/prettier/server.js';
+    import {
+        mapState,
+        mapMutations  
+    } from 'vuex';
 	export default {
 		data() {
 		return {
@@ -20,14 +25,18 @@
                 id:'3',
 			}
 		},
+        created () {
+            console.log(this.$store)
+        },
 		onLoad(options) {
 			var SocketTask = app.globalData.SocketTask
 		},
         computed: {
             //监听接收到的消息
             socketMsgs() {
-                return this.$websocket.getters.socketMsgs
-            }
+                return this.$store.getters.socketMsgs
+            },
+            ...mapState(['test']),
         },
         watch: {
             'socketMsgs': {
@@ -37,7 +46,6 @@
                     let sMsg = that.socketMsgs
                     console.log(sMsg);
                     console.log('登录页面的接收')
-                    
                 }
             }
         },
@@ -59,18 +67,22 @@
                     
                 })
             },
+            addCount() {
+                this.$store.commit('pushTakeList')
+            },
             login:function()
             {
                 let that = this
-                that.$websocket.commit('setUid',that.id)
-                that.$websocket.dispatch('webSocketInit');//初始化ws
-                
-                if (that.$websocket.state.webSocketIsReady) {
+                console.log(that.$store)
+                that.$store.commit('setUid',that.id)
+                that.$store.dispatch('webSocketInit');//初始化ws
+                this.addCount();
+                if ( that.$store.state.webSocketIsReady) {
                     uni.navigateTo({
-                        url: '/pages/index/chat'
+                        url: '/pages/index/list'
                     })
                 } else {
-                    that.$websocket.commit('setCallbakc',res => {
+                    that.$store.commit('setCallbakc',res => {
                         uni.navigateTo({
                             url: '/pages/index/chat'
                         })
