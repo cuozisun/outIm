@@ -20,7 +20,10 @@ const store = new Vuex.Store({
         login:false,
 
         //展示数据
-        takeList:[{'name':'xixi','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png'}],
+        takeList:[{'nick_name':'xixi','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png','id':'3'},{'nick_name':'xixi','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png','id':'4'}],
+		sortList:{'user_3':0,'user_4':1},
+
+		// takeList:{'user_3':{'nick_name':'hehe2','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png','sort':1},'user_4':{'nick_name':'hehe1','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png','sort':2}},
         temporaryList:[],
         test:'123',
     },
@@ -63,8 +66,10 @@ const store = new Vuex.Store({
 				state.socketTask.onMessage((res) => {
 					console.log("收到服务器内容：" + res.data);
 					state.msg = JSON.parse(res.data)
+					var result = state.msg;
+					console.log(that.state.takeList)
 					//判断接收消息类型进行不同处理
-					switch (state.msg.code) {
+					switch (result.code) {
 						case '6001'://请求添加好友
 							
 							break;
@@ -78,15 +83,20 @@ const store = new Vuex.Store({
 				
 							break;
 						case '6005'://长连接连接成功
-							that.commit('bindUid',state.msg.data)
+							console.log('长连接连接成功')
+							that.commit('bindUid',result.data)
 							that.commit('webSocketPing')
 							// that.commit('webSocketClose')
 							if (that.state.Callback) {
 								that.state.Callback();
 							}
 							break;
-						case '6006'://接到他人消息
-							
+						case '6006'://接到他人发送消息
+							//判断发信息用户是否在列表中
+							console.log(that.state.takeList['user_'+result.data.from_id])
+							if (that.state.sortList['user_'+result.data.from_id]) {
+								that.commit('findPosition','user_'+result.data.from_id);
+							}
 							break;
 						default:
 							break;
@@ -205,9 +215,35 @@ const store = new Vuex.Store({
 			})
 		},
         pushTakeList(state){
-            state.takeList.push({'name':'haha','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png'})
-            console.log(state.takeList)
+			// state.takeList.user_5 = {'nick_name':'haha','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png'}
+            // console.log(state.takeList)
+			state.takeList.push({'nick_name':'haha','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png'})
         },
+		changeSort(state,index){
+			state.takeList[index].sort = '0';
+			for(var o in state.takeList){  
+
+				console.log(o)
+				console.log(state.takeList[o])
+			}  
+			// console.log('触发改变为0'+state.takeList);
+			// // this.commit('sortJson');
+			// console.log(state.takeList.toJSONString());
+		},
+		findPosition(state,index)
+		{
+			var position =  state.sortList[index];
+			var temp = state.takeList[position];
+			state.takeList.splice(position,1); 
+			state.takeList.unshift(temp)
+			for (var i = 0;i<state.takeList.length;i++) {
+				state.sortList['user_'+state.takeList[i].id] = i;
+			}
+		},
+		sortJson(state){
+			console.log('触发排序'+state.takeList);
+			state.takeList.sort(up);
+		},
         add(state){
             state.test = '456'
         }
@@ -226,4 +262,9 @@ const store = new Vuex.Store({
     },
     
 })
+function up(x,y){
+	console.log('排序');
+    return x.sort-y.sort;
+} 
+
 export default store

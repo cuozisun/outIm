@@ -6,7 +6,7 @@
                     <view style="width: 200rpx;display: flex;align-items: center;">
                         <image :src="item.head_image" style="height: 55rpx;width: 55rpx;"></image>
                     </view>
-                    <view style="width: 100rpx;text-align: center;line-height: 80rpx;font-size: 40rpx;">{{item.name}}</view>
+                    <view style="width: 100rpx;text-align: center;line-height: 80rpx;font-size: 40rpx;">{{item.nick_name}}</view>
                 </view>
             </view>
         </view>

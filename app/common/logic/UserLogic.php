@@ -99,6 +99,17 @@ class UserLogic
     }
 
 
+    public function getUserInfoWhere($where)
+    {
+        $userModel = new userModel();
+        $result = $userModel->getUserInfo($where);
+        if (!$result) {
+            return_json(array('code'=>3002,'msg'=>'该用户不存在'));
+        }
+        return $result;
+    }
+
+
     /**
      * 同意好友请求
      *

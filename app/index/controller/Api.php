@@ -69,6 +69,25 @@ class Api extends BaseController
         check_must_param($request, $check_param);
         $params = $request->param();
 
+        //将登陆人的信息存入redis中
+        $UserLogic = new UserLogic();
+        $userinfo = $UserLogic->getUserInfoWhere(array('id'=>$params['uid']));
+
+        //在线人信息存入到redis当中
+        $handler = Cache::store('redis')->handler();
+        $handler->select(2);
+
+        //剔除敏感信息
+        unset($userinfo['c_id']);
+        unset($userinfo['accid']);
+        unset($userinfo['u_is_close']);
+        unset($userinfo['token']);
+        unset($userinfo['password']);
+        unset($userinfo['update_time']);
+        unset($userinfo['add_time']);
+
+        $handler->set($params['uid'],json_encode($userinfo));
+
         Gateway::bindUid($params['client_id'], $params['uid']);        
     }
     
@@ -108,31 +127,43 @@ class Api extends BaseController
 
         $data['from_id'] = $params['uid'];
         $data['data'] = $params['data'];
+        $data['date'] = date('Y-m-d H:i:s');
 
         //存入redis中
         // Cache::store('redis')->set($data['from_id'].'1', [1,2,3]);
         // Cache::store('redis')->push($data['from_id'].'1', '33333');
 
-        $handler = Cache::store('redis')->handler();
+        
 
         //将对话关系存入对话关系库
-        $handler::push($params['uid'],$params['otheruid']);
-        $handler::push($params['otheruid'],$params['uid']);
+        if (!Cache::store('redis')->get($params['uid'])) {
+            Cache::store('redis')->set($params['uid'],[$params['otheruid']]);
+        } else {
+            Cache::store('redis')->push($params['uid'],$params['otheruid']);
+        }
 
+        if (!Cache::store('redis')->get($params['otheruid'])) {
+            Cache::store('redis')->set($params['otheruid'],[$params['uid']]);
+        } else {
+            Cache::store('redis')->push($params['otheruid'],$params['uid']);
+        }
+        
+        //取较大id '_' 较小id为key
         $key = max($params['otheruid'],$params['uid']).'_'.min($params['otheruid'],$params['uid']);
         
+        $handler = Cache::store('redis')->handler();
+        $handler->select(1);
         //存储聊天内容
         if ($handler->llen($key)>=100) {
-            $handler->rpop($key,"{'".$params['uid']."':".$params['data']."}");
+            $handler->rpop($key,array($params['uid']=>$params['data']));
         }
-        $handler->lpush($key,"{'".$params['uid']."':".$params['data']."}");
+        $handler->lpush($key,array($params['uid']=>$params['data']));
 
-
-        // $length = $handler->lpush($params['uid'],$params['otheruid']);
-        // $length = $handler->lrange($data['from_id'].'3',0,-1);
-        // dump($length);
+        //附带本人信息
+        $handler->select(2);
+        $data['uinfo'] = $handler->get($params['uid']);
         
-        $data = json_encode(array('code'=>6006,'msg'=>'接收消息','data'=>$data));
+        $data = json_encode(array('code'=>'6006','msg'=>'接收消息','data'=>$data));
         Gateway::sendToUid($params['otheruid'], $data);
     }
 

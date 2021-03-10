@@ -8024,7 +8024,287 @@ function normalizeComponent (
 
 
 /***/ }),
-/* 11 */,
+/* 11 */
+/*!********************************************************!*\
+  !*** D:/server/outIm/imClient/imClient/store/index.js ***!
+  \********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ 2));
+var _vuex = _interopRequireDefault(__webpack_require__(/*! vuex */ 12));
+var _server = _interopRequireDefault(__webpack_require__(/*! @/node_modules/prettier/server.js */ 13));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
+
+_vue.default.use(_vuex.default);
+
+var store = new _vuex.default.Store({
+
+  state: {
+    socketTask: null, // ws链接
+    webSocketPingTimer: null, // 心跳定时器
+    webSocketPingTime: 9000, // 心跳的间隔，当前为 10秒,
+    webSocketReconnectCount: 0, // 重连次数
+    webSocketIsReconnect: true, // 是否重连
+    webSocketIsReady: true,
+    uid: null, //ws登录userId
+    sid: null, //ws登录token
+    msg: null, //接收到的信息
+    Callback: null, //异步回调时间
+    login: false,
+
+    //展示数据
+    takeList: [{ 'nick_name': 'xixi', 'head_image': 'http://images.750679.com/public/upload/2021/1-29/head.png', 'id': '3' }, { 'nick_name': 'xixi', 'head_image': 'http://images.750679.com/public/upload/2021/1-29/head.png', 'id': '4' }],
+    sortList: { 'user_3': 0, 'user_4': 1 },
+
+    // takeList:{'user_3':{'nick_name':'hehe2','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png','sort':1},'user_4':{'nick_name':'hehe1','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png','sort':2}},
+    temporaryList: [],
+    test: '123' },
+
+  getters: {
+    // 获取接收的信息
+    socketMsgs: function socketMsgs(state) {
+      return state.msg;
+    } },
+
+  mutations: {
+    //发送http请求登录后设置用户id 用于ws登录
+    setUid: function setUid(state, uid) {
+      state.uid = uid;
+    },
+
+    //发送http请求登录后设置用户token 用于ws登录
+    setSid: function setSid(state, sid) {
+      state.sid = sid;
+    },
+
+    setCallbakc: function setCallbakc(state, Callback) {
+      console.log(Callback);
+      state.Callback = Callback;
+    },
+    //初始化ws 用户登录后调用
+    webSocketInit: function webSocketInit(state) {
+      var that = this;
+      // 创建一个this.socketTask对象【发送、接收、关闭socket都由这个对象操作】
+      state.socketTask = uni.connectSocket({
+        url: "ws://127.0.0.1:8282",
+        success: function success(data) {
+          console.log("websocket连接成功");
+        } });
+
+
+      // ws连接开启后登录验证
+      state.socketTask.onOpen(function (res) {
+        console.log("WebSocket连接正常打开中...！");
+        // 注：只有连接正常打开中 ，才能正常收到消息
+        state.socketTask.onMessage(function (res) {
+          console.log("收到服务器内容：" + res.data);
+          state.msg = JSON.parse(res.data);
+          var result = state.msg;
+          console.log(that.state.takeList);
+          //判断接收消息类型进行不同处理
+          switch (result.code) {
+            case '6001': //请求添加好友
+
+              break;
+            case '6002': //同意添加好友成功
+
+              break;
+            case '6003': //请求添加好友成功
+
+              break;
+            case '6004': //查看个人信息
+
+              break;
+            case '6005': //长连接连接成功
+              console.log('长连接连接成功');
+              that.commit('bindUid', result.data);
+              that.commit('webSocketPing');
+              // that.commit('webSocketClose')
+              if (that.state.Callback) {
+                that.state.Callback();
+              }
+              break;
+            case '6006': //接到他人发送消息
+              //判断发信息用户是否在列表中
+              console.log(that.state.takeList['user_' + result.data.from_id]);
+              if (that.state.sortList['user_' + result.data.from_id]) {
+                that.commit('findPosition', 'user_' + result.data.from_id);
+              }
+              break;
+            default:
+              break;}
+
+
+        });
+
+      });
+
+      // 链接开启后登录验证
+      state.socketTask.onError(function (errMsg) {
+        console.log("ws连接异常");
+        that.commit('webSocketClose');
+      });
+
+      // 链接开启后登录验证
+      state.socketTask.onClose(function (errMsg) {
+        console.log("ws连接关闭");
+        that.commit('webSocketClose');
+      });
+
+    },
+    bindUid: function bindUid(state, payload) {
+      var that = this;
+      _server.default.getJSON('/api/bindUid', {
+        uid: that.state.uid,
+        client_id: payload },
+      function (res) {
+        console.log(res);
+      });
+    },
+    webSocketLogin: function webSocketLogin() {
+      var that = this;
+
+      console.log("ws登录");
+      var payload = {
+        uid: that.state.uid,
+        sid: that.state.sid,
+        type: 1 };
+
+      that.commit('webSocketSend', payload);
+      that.state.webSocketIsReady = true;
+    },
+
+    // 断开连接时
+    webSocketClose: function webSocketClose(state) {
+      var that = this;
+      // 修改状态为未连接
+      state.webSocketIsReady = false;
+      state.webSocket = null;
+      console.log('连接断开');
+      // 判断是否重连
+      if (
+      state.webSocketIsReconnect &&
+      state.webSocketReconnectCount === 0)
+      {
+        // 第一次直接尝试重连
+        that.commit('webSocketReconnect');
+      }
+    },
+
+    // 定时心跳
+    webSocketPing: function webSocketPing() {
+      var that = this;
+      that.state.webSocketIsReady = true;
+      that.state.webSocketPingTimer = setTimeout(function () {
+        if (!that.state.webSocketIsReady) {
+          return false;
+        }
+        // console.log("心跳");
+        var payload = { "type": "ping" };
+        that.commit('webSocketSend', payload);
+        clearTimeout(that.state.webSocketPingTimer);
+        // 重新执行
+        that.commit('webSocketPing');
+      }, that.state.webSocketPingTime);
+    },
+
+    // WebSocket 重连
+    webSocketReconnect: function webSocketReconnect(state) {
+      var that = this;
+      if (state.webSocketIsReady) {
+        return false;
+      }
+      console.log("第" + state.webSocketReconnectCount + "次重连");
+      state.webSocketReconnectCount += 1;
+      // 判断是否到了最大重连次数 
+      if (state.webSocketReconnectCount >= 10) {
+        this.webSocketWarningText = "重连次数超限";
+        return false;
+      }
+      // 初始化
+      console.log("开始重连");
+      that.commit('webSocketInit');
+
+      // 每过 5 秒尝试一次，检查是否连接成功，直到超过最大重连次数
+      var timer = setTimeout(function () {
+        that.commit('webSocketReconnect');
+        clearTimeout(timer);
+      }, 5000);
+    },
+
+    // 发送ws消息
+    webSocketSend: function webSocketSend(state, payload) {
+      var that = this;
+      that.state.socketTask.send({
+        data: JSON.stringify(payload),
+        fail: function fail(res) {
+          // console.log("发送失败")
+          that.state.sendMsgStatus = true;
+        },
+        success: function success(res) {
+          // console.log("发送成功")
+          that.state.sendMsgStatus = false;
+        } });
+
+    },
+    pushTakeList: function pushTakeList(state) {
+      // state.takeList.user_5 = {'nick_name':'haha','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png'}
+      // console.log(state.takeList)
+      state.takeList.push({ 'nick_name': 'haha', 'head_image': 'http://images.750679.com/public/upload/2021/1-29/head.png' });
+    },
+    changeSort: function changeSort(state, index) {
+      state.takeList[index].sort = '0';
+      for (var o in state.takeList) {
+
+        console.log(o);
+        console.log(state.takeList[o]);
+      }
+      // console.log('触发改变为0'+state.takeList);
+      // // this.commit('sortJson');
+      // console.log(state.takeList.toJSONString());
+    },
+    findPosition: function findPosition(state, index)
+    {
+      var position = state.sortList[index];
+      var temp = state.takeList[position];
+      state.takeList.splice(position, 1);
+      state.takeList.unshift(temp);
+      for (var i = 0; i < state.takeList.length; i++) {
+        state.sortList['user_' + state.takeList[i].id] = i;
+      }
+    },
+    sortJson: function sortJson(state) {
+      console.log('触发排序' + state.takeList);
+      state.takeList.sort(up);
+    },
+    add: function add(state) {
+      state.test = '456';
+    } },
+
+  actions: {
+    webSocketInit: function webSocketInit(_ref,
+
+    url) {var commit = _ref.commit;
+      commit('webSocketInit', url);
+    },
+    webSocketSend: function webSocketSend(_ref2,
+
+    p) {var commit = _ref2.commit;
+      commit('webSocketSend', p);
+    } } });
+
+
+
+function up(x, y) {
+  console.log('排序');
+  return x.sort - y.sort;
+}var _default =
+
+store;exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
+
+/***/ }),
 /* 12 */
 /*!********************************************!*\
   !*** ./node_modules/vuex/dist/vuex.esm.js ***!
@@ -9138,246 +9418,6 @@ var index = {
 
 /***/ }),
 /* 13 */
-/*!********************************************************!*\
-  !*** D:/server/outIm/imClient/imClient/store/index.js ***!
-  \********************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ 2));
-var _vuex = _interopRequireDefault(__webpack_require__(/*! vuex */ 12));
-var _server = _interopRequireDefault(__webpack_require__(/*! @/node_modules/prettier/server.js */ 14));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}
-
-_vue.default.use(_vuex.default);
-
-var store = new _vuex.default.Store({
-
-  state: {
-    socketTask: null, // ws链接
-    webSocketPingTimer: null, // 心跳定时器
-    webSocketPingTime: 9000, // 心跳的间隔，当前为 10秒,
-    webSocketReconnectCount: 0, // 重连次数
-    webSocketIsReconnect: true, // 是否重连
-    webSocketIsReady: true,
-    uid: null, //ws登录userId
-    sid: null, //ws登录token
-    msg: null, //接收到的信息
-    Callback: null, //异步回调时间
-    login: false,
-
-    //展示数据
-    takeList: [{ 'name': 'xixi', 'head_image': 'http://images.750679.com/public/upload/2021/1-29/head.png' }],
-    temporaryList: [],
-    test: '123' },
-
-  getters: {
-    // 获取接收的信息
-    socketMsgs: function socketMsgs(state) {
-      return state.msg;
-    } },
-
-  mutations: {
-    //发送http请求登录后设置用户id 用于ws登录
-    setUid: function setUid(state, uid) {
-      state.uid = uid;
-    },
-
-    //发送http请求登录后设置用户token 用于ws登录
-    setSid: function setSid(state, sid) {
-      state.sid = sid;
-    },
-
-    setCallbakc: function setCallbakc(state, Callback) {
-      console.log(Callback);
-      state.Callback = Callback;
-    },
-    //初始化ws 用户登录后调用
-    webSocketInit: function webSocketInit(state) {
-      var that = this;
-      // 创建一个this.socketTask对象【发送、接收、关闭socket都由这个对象操作】
-      state.socketTask = uni.connectSocket({
-        url: "ws://127.0.0.1:8282",
-        success: function success(data) {
-          console.log("websocket连接成功");
-        } });
-
-
-      // ws连接开启后登录验证
-      state.socketTask.onOpen(function (res) {
-        console.log("WebSocket连接正常打开中...！");
-        // 注：只有连接正常打开中 ，才能正常收到消息
-        state.socketTask.onMessage(function (res) {
-          console.log("收到服务器内容：" + res.data);
-          state.msg = JSON.parse(res.data);
-          //判断接收消息类型进行不同处理
-          switch (state.msg.code) {
-            case '6001': //请求添加好友
-
-              break;
-            case '6002': //同意添加好友成功
-
-              break;
-            case '6003': //请求添加好友成功
-
-              break;
-            case '6004': //查看个人信息
-
-              break;
-            case '6005': //长连接连接成功
-              that.commit('bindUid', state.msg.data);
-              that.commit('webSocketPing');
-              // that.commit('webSocketClose')
-              if (that.state.Callback) {
-                that.state.Callback();
-              }
-              break;
-            case '6006': //接到他人消息
-
-              break;
-            default:
-              break;}
-
-
-        });
-
-      });
-
-      // 链接开启后登录验证
-      state.socketTask.onError(function (errMsg) {
-        console.log("ws连接异常");
-        that.commit('webSocketClose');
-      });
-
-      // 链接开启后登录验证
-      state.socketTask.onClose(function (errMsg) {
-        console.log("ws连接关闭");
-        that.commit('webSocketClose');
-      });
-
-    },
-    bindUid: function bindUid(state, payload) {
-      var that = this;
-      _server.default.getJSON('/api/bindUid', {
-        uid: that.state.uid,
-        client_id: payload },
-      function (res) {
-        console.log(res);
-      });
-    },
-    webSocketLogin: function webSocketLogin() {
-      var that = this;
-
-      console.log("ws登录");
-      var payload = {
-        uid: that.state.uid,
-        sid: that.state.sid,
-        type: 1 };
-
-      that.commit('webSocketSend', payload);
-      that.state.webSocketIsReady = true;
-    },
-
-    // 断开连接时
-    webSocketClose: function webSocketClose(state) {
-      var that = this;
-      // 修改状态为未连接
-      state.webSocketIsReady = false;
-      state.webSocket = null;
-      console.log('连接断开');
-      // 判断是否重连
-      if (
-      state.webSocketIsReconnect &&
-      state.webSocketReconnectCount === 0)
-      {
-        // 第一次直接尝试重连
-        that.commit('webSocketReconnect');
-      }
-    },
-
-    // 定时心跳
-    webSocketPing: function webSocketPing() {
-      var that = this;
-      that.state.webSocketIsReady = true;
-      that.state.webSocketPingTimer = setTimeout(function () {
-        if (!that.state.webSocketIsReady) {
-          return false;
-        }
-        // console.log("心跳");
-        var payload = { "type": "ping" };
-        that.commit('webSocketSend', payload);
-        clearTimeout(that.state.webSocketPingTimer);
-        // 重新执行
-        that.commit('webSocketPing');
-      }, that.state.webSocketPingTime);
-    },
-
-    // WebSocket 重连
-    webSocketReconnect: function webSocketReconnect(state) {
-      var that = this;
-      if (state.webSocketIsReady) {
-        return false;
-      }
-      console.log("第" + state.webSocketReconnectCount + "次重连");
-      state.webSocketReconnectCount += 1;
-      // 判断是否到了最大重连次数 
-      if (state.webSocketReconnectCount >= 10) {
-        this.webSocketWarningText = "重连次数超限";
-        return false;
-      }
-      // 初始化
-      console.log("开始重连");
-      that.commit('webSocketInit');
-
-      // 每过 5 秒尝试一次，检查是否连接成功，直到超过最大重连次数
-      var timer = setTimeout(function () {
-        that.commit('webSocketReconnect');
-        clearTimeout(timer);
-      }, 5000);
-    },
-
-    // 发送ws消息
-    webSocketSend: function webSocketSend(state, payload) {
-      var that = this;
-      that.state.socketTask.send({
-        data: JSON.stringify(payload),
-        fail: function fail(res) {
-          // console.log("发送失败")
-          that.state.sendMsgStatus = true;
-        },
-        success: function success(res) {
-          // console.log("发送成功")
-          that.state.sendMsgStatus = false;
-        } });
-
-    },
-    pushTakeList: function pushTakeList(state) {
-      state.takeList.push({ 'name': 'haha', 'head_image': 'http://images.750679.com/public/upload/2021/1-29/head.png' });
-      console.log(state.takeList);
-    },
-    add: function add(state) {
-      state.test = '456';
-    } },
-
-  actions: {
-    webSocketInit: function webSocketInit(_ref,
-
-    url) {var commit = _ref.commit;
-      commit('webSocketInit', url);
-    },
-    webSocketSend: function webSocketSend(_ref2,
-
-    p) {var commit = _ref2.commit;
-      commit('webSocketSend', p);
-    } } });var _default =
-
-
-
-store;exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
-
-/***/ }),
-/* 14 */
 /*!*************************************************************************!*\
   !*** D:/server/outIm/imClient/imClient/node_modules/prettier/server.js ***!
   \*************************************************************************/
