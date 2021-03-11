@@ -20,10 +20,11 @@ const store = new Vuex.Store({
         login:false,
 
         //展示数据
-        takeList:[{'nick_name':'xixi','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png','id':'3'},{'nick_name':'xixi','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png','id':'4'}],
+        talkList:[{'nick_name':'到家','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png','id':'3'},{'nick_name':'xixi4','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png','id':'4'}],
 		sortList:{'user_3':0,'user_4':1},
+		// talkList:[],
+		// sortList:{},
 
-		// takeList:{'user_3':{'nick_name':'hehe2','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png','sort':1},'user_4':{'nick_name':'hehe1','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png','sort':2}},
         temporaryList:[],
         test:'123',
     },
@@ -67,7 +68,7 @@ const store = new Vuex.Store({
 					console.log("收到服务器内容：" + res.data);
 					state.msg = JSON.parse(res.data)
 					var result = state.msg;
-					console.log(that.state.takeList)
+					// console.log(that.state.talkList)
 					//判断接收消息类型进行不同处理
 					switch (result.code) {
 						case '6001'://请求添加好友
@@ -93,10 +94,56 @@ const store = new Vuex.Store({
 							break;
 						case '6006'://接到他人发送消息
 							//判断发信息用户是否在列表中
-							console.log(that.state.takeList['user_'+result.data.from_id])
-							if (that.state.sortList['user_'+result.data.from_id]) {
+							if (that.state.sortList['user_'+result.data.from_id] !== undefined) {
+								//旧会话改变列表顺序
 								that.commit('findPosition','user_'+result.data.from_id);
+							} else if (that.state.sortList['user_'+result.data.from_id] === undefined) {
+								//新会话
+								that.commit('changeList',result);
 							}
+							//存储聊天关系
+							uni.setStorage({
+								key: 'sortList',
+								data: state.sortList,
+								success: function () {
+									console.log('聊天关系存储成功')
+								}
+							});
+							console.log(state.talkList)
+							uni.setStorage({
+								key: 'talkList',
+								data: state.talkList,
+								success: function () {
+									console.log('聊天关系存储成功')
+								}
+							});
+							
+
+							//存储聊天内容
+								//构建插入数据
+							var from_id = result.data.from_id;
+							var uid = state.uid;
+							var key = Math.max(from_id,uid)+'_'+Math.min(from_id,uid);
+							
+							var inserdata = '{"'+from_id+'":"'+result.data.data+'"}';
+							// var inserdata = {from_id:result.data.data};
+							console.log(inserdata)
+							inserdata = JSON.parse(inserdata)
+								//判断目前结构状态
+							var show_data = uni.getStorageSync(key);
+							if (show_data) {
+								show_data.unshift(inserdata);
+							} else {
+								show_data = [];
+								show_data.unshift(inserdata);
+							}
+							uni.setStorage({
+								key: key,
+								data: show_data,
+								success: function () {
+									console.log('缓存存储成功')
+								}
+							});
 							break;
 						default:
 							break;
@@ -215,34 +262,36 @@ const store = new Vuex.Store({
 			})
 		},
         pushTakeList(state){
-			// state.takeList.user_5 = {'nick_name':'haha','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png'}
-            // console.log(state.takeList)
-			state.takeList.push({'nick_name':'haha','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png'})
+			// state.talkList.user_5 = {'nick_name':'haha','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png'}
+            // console.log(state.talkList)
+			state.talkList.push({'nick_name':'haha','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png','id':'5'});
+			state.sortList.user_5 = 2;
         },
-		changeSort(state,index){
-			state.takeList[index].sort = '0';
-			for(var o in state.takeList){  
 
-				console.log(o)
-				console.log(state.takeList[o])
-			}  
-			// console.log('触发改变为0'+state.takeList);
-			// // this.commit('sortJson');
-			// console.log(state.takeList.toJSONString());
+		changeList(state,result)
+		{
+			var inserdata = JSON.parse(result.data.uinfo);
+			inserdata.no_read = 1;
+			console.log(inserdata)
+			var index = 'user_'+result.data.from_id;
+			state.talkList.unshift(inserdata);
+			state.sortList[index] = state.sortList.length + 1;
+			for (var i = 0;i<state.talkList.length;i++) {
+				state.sortList['user_'+state.talkList[i].id] = i;
+			}
 		},
+
 		findPosition(state,index)
 		{
 			var position =  state.sortList[index];
-			var temp = state.takeList[position];
-			state.takeList.splice(position,1); 
-			state.takeList.unshift(temp)
-			for (var i = 0;i<state.takeList.length;i++) {
-				state.sortList['user_'+state.takeList[i].id] = i;
+			var temp = state.talkList[position];
+			temp.no_read++;
+			state.talkList.splice(position,1); 
+			state.talkList.unshift(temp)
+			for (var i = 0;i<state.talkList.length;i++) {
+				state.sortList['user_'+state.talkList[i].id] = i;
 			}
-		},
-		sortJson(state){
-			console.log('触发排序'+state.takeList);
-			state.takeList.sort(up);
+			// console.log(state.sortList)
 		},
         add(state){
             state.test = '456'
@@ -262,9 +311,5 @@ const store = new Vuex.Store({
     },
     
 })
-function up(x,y){
-	console.log('排序');
-    return x.sort-y.sort;
-} 
 
 export default store

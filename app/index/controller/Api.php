@@ -132,26 +132,16 @@ class Api extends BaseController
         //存入redis中
         // Cache::store('redis')->set($data['from_id'].'1', [1,2,3]);
         // Cache::store('redis')->push($data['from_id'].'1', '33333');
-
-        
-
+        $handler = Cache::store('redis')->handler();
         //将对话关系存入对话关系库
-        if (!Cache::store('redis')->get($params['uid'])) {
-            Cache::store('redis')->set($params['uid'],[$params['otheruid']]);
-        } else {
-            Cache::store('redis')->push($params['uid'],$params['otheruid']);
-        }
-
-        if (!Cache::store('redis')->get($params['otheruid'])) {
-            Cache::store('redis')->set($params['otheruid'],[$params['uid']]);
-        } else {
-            Cache::store('redis')->push($params['otheruid'],$params['uid']);
-        }
+        $handler->lrem($params['uid'],'user_'.$params['otheruid']);
+        $handler->lrem($params['otheruid'],'user_'.$params['uid']);
+        $handler->lpush($params['uid'],'user_'.$params['otheruid']);
+        $handler->lpush($params['otheruid'],'user_'.$params['uid']);
         
         //取较大id '_' 较小id为key
         $key = max($params['otheruid'],$params['uid']).'_'.min($params['otheruid'],$params['uid']);
         
-        $handler = Cache::store('redis')->handler();
         $handler->select(1);
         //存储聊天内容
         if ($handler->llen($key)>=100) {

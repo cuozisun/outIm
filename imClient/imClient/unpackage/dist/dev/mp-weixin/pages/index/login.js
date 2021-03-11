@@ -182,8 +182,8 @@ var app = getApp();var _default = { data: function data() {return { PageCur: 'ba
       handler: function handler() {
         var that = this;
         var sMsg = that.socketMsgs;
-        console.log(sMsg);
-        console.log('登录页面的接收');
+        // console.log(sMsg);
+        // console.log('登录页面的接收')
       } } },
 
 
@@ -206,7 +206,7 @@ var app = getApp();var _default = { data: function data() {return { PageCur: 'ba
       });
     },
     addCount: function addCount() {
-      this.$store.commit('pushTakeList');
+      // this.$store.commit('pushTakeList')
     },
     login: function login()
     {

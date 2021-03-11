@@ -44,8 +44,8 @@
                 handler: function() {
                     let that = this
                     let sMsg = that.socketMsgs
-                    console.log(sMsg);
-                    console.log('登录页面的接收')
+                    // console.log(sMsg);
+                    // console.log('登录页面的接收')
                 }
             }
         },
@@ -68,7 +68,7 @@
                 })
             },
             addCount() {
-                this.$store.commit('pushTakeList')
+                // this.$store.commit('pushTakeList')
             },
             login:function()
             {
