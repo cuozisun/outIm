@@ -8054,12 +8054,13 @@ var store = new _vuex.default.Store({
     login: false,
 
     //展示数据
-    talkList: [{ 'nick_name': '到家', 'head_image': 'http://images.750679.com/public/upload/2021/1-29/head.png', 'id': '3' }, { 'nick_name': 'xixi4', 'head_image': 'http://images.750679.com/public/upload/2021/1-29/head.png', 'id': '4' }],
-    sortList: { 'user_3': 0, 'user_4': 1 },
-    // talkList:[],
-    // sortList:{},
-
-    temporaryList: [],
+    // talkList:[{'nick_name':'到家','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png','id':'3','no_read':'1','last_log':'xix','not_ring':'1'},{'nick_name':'xixi4','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png','id':'4','no_read':'0','last_log':'xix','not_ring':'0'}],
+    // sortList:{'user_3':0,'user_4':1},
+    talkList: [], //聊天列表
+    sortList: {}, //聊天页表排序
+    talkDetail: [], //聊天详情页展示
+    row: 0, //已取聊天记录n条
+    scroolTime: 0, //聊天页面上翻页次数
     test: '123' },
 
   getters: {
@@ -8072,6 +8073,34 @@ var store = new _vuex.default.Store({
     //发送http请求登录后设置用户id 用于ws登录
     setUid: function setUid(state, uid) {
       state.uid = uid;
+    },
+    setTalkList: function setTalkList(state, object) {
+      console.log(state.talkList);
+      state.talkList = object;
+      console.log(state.talkList);
+    },
+    setSortList: function setSortList(state, object) {
+      console.log(state.sortList);
+      state.sortList = object;
+      console.log(state.sortList);
+    },
+    takeTalkDetail: function takeTalkDetail(state, index) {
+      console.log(index);
+      //获取key对应的缓存
+      var talkDetail = uni.getStorageSync(index);
+      console.log(talkDetail.length);
+      console.log(state.row);
+      if (state.row >= talkDetail.length) {
+        return;
+      }
+      if (talkDetail) {
+        //取出15条
+        var tempData = talkDetail.slice(state.scroolTime * 15, (state.scroolTime + 1) * 15);
+        state.scroolTime++;
+        state.row = state.row + tempData.length;
+        state.talkDetail = state.talkDetail.concat(tempData);
+      }
+      console.log(state.talkDetail);
     },
 
     //发送http请求登录后设置用户token 用于ws登录
@@ -8130,7 +8159,7 @@ var store = new _vuex.default.Store({
               //判断发信息用户是否在列表中
               if (that.state.sortList['user_' + result.data.from_id] !== undefined) {
                 //旧会话改变列表顺序
-                that.commit('findPosition', 'user_' + result.data.from_id);
+                that.commit('findPosition', result);
               } else if (that.state.sortList['user_' + result.data.from_id] === undefined) {
                 //新会话
                 that.commit('changeList', result);
@@ -8298,7 +8327,7 @@ var store = new _vuex.default.Store({
     pushTakeList: function pushTakeList(state) {
       // state.talkList.user_5 = {'nick_name':'haha','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png'}
       // console.log(state.talkList)
-      state.talkList.push({ 'nick_name': 'haha', 'head_image': 'http://images.750679.com/public/upload/2021/1-29/head.png', 'id': '5' });
+      state.talkList.push({ 'nick_name': 'haha', 'head_image': 'http://images.750679.com/public/upload/2021/1-29/head.png', 'id': '5', 'no_read': '1', 'last_log': 'xix', 'not_ring': '0' });
       state.sortList.user_5 = 2;
     },
 
@@ -8306,6 +8335,8 @@ var store = new _vuex.default.Store({
     {
       var inserdata = JSON.parse(result.data.uinfo);
       inserdata.no_read = 1;
+      inserdata.last_log = result.data.data;
+      inserdata.not_ring = '0';
       console.log(inserdata);
       var index = 'user_' + result.data.from_id;
       state.talkList.unshift(inserdata);
@@ -8315,11 +8346,14 @@ var store = new _vuex.default.Store({
       }
     },
 
-    findPosition: function findPosition(state, index)
+    findPosition: function findPosition(state, result)
     {
+      var index = 'user_' + result.data.from_id;
       var position = state.sortList[index];
       var temp = state.talkList[position];
       temp.no_read++;
+      temp.last_log = result.data.data;
+      temp.not_ring = '0';
       state.talkList.splice(position, 1);
       state.talkList.unshift(temp);
       for (var i = 0; i < state.talkList.length; i++) {

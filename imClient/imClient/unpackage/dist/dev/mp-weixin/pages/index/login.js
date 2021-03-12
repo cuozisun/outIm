@@ -165,9 +165,8 @@ var _vuex = __webpack_require__(/*! vuex */ 12);function _interopRequireDefault(
 //
 //
 //
-var app = getApp();var _default = { data: function data() {return { PageCur: 'basics', id: '3' };}, created: function created() {console.log(this.$store);},
-  onLoad: function onLoad(options) {
-    var SocketTask = app.globalData.SocketTask;
+var app = getApp();var _default = { data: function data() {return { PageCur: 'basics', id: '3' };}, created: function created() {}, onLoad: function onLoad(options) {
+    this.loadStorage();
   },
   computed: _objectSpread({
     //监听接收到的消息
@@ -208,6 +207,15 @@ var app = getApp();var _default = { data: function data() {return { PageCur: 'ba
     addCount: function addCount() {
       // this.$store.commit('pushTakeList')
     },
+    loadStorage: function loadStorage() {
+      //判断是否有缓存如果有则进行加载
+      var sortList = uni.getStorageSync('sortList');
+      this.$store.commit('setSortList', sortList);
+
+      var talkList = uni.getStorageSync('talkList');
+      this.$store.commit('setTalkList', talkList);
+
+    },
     login: function login()
     {
       var that = this;
@@ -215,7 +223,9 @@ var app = getApp();var _default = { data: function data() {return { PageCur: 'ba
       that.$store.commit('setUid', that.id);
       that.$store.dispatch('webSocketInit'); //初始化ws
       this.addCount();
+
       if (that.$store.state.webSocketIsReady) {
+
         uni.navigateTo({
           url: '/pages/index/list' });
 

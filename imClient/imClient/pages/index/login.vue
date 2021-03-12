@@ -26,10 +26,9 @@
 			}
 		},
         created () {
-            console.log(this.$store)
         },
 		onLoad(options) {
-			var SocketTask = app.globalData.SocketTask
+            this.loadStorage();
 		},
         computed: {
             //监听接收到的消息
@@ -70,6 +69,15 @@
             addCount() {
                 // this.$store.commit('pushTakeList')
             },
+            loadStorage() {
+                //判断是否有缓存如果有则进行加载
+                var sortList = uni.getStorageSync('sortList');
+                this.$store.commit('setSortList',sortList)
+
+                var talkList = uni.getStorageSync('talkList');
+                this.$store.commit('setTalkList',talkList)
+                
+            },
             login:function()
             {
                 let that = this
@@ -77,7 +85,9 @@
                 that.$store.commit('setUid',that.id)
                 that.$store.dispatch('webSocketInit');//初始化ws
                 this.addCount();
+                
                 if ( that.$store.state.webSocketIsReady) {
+                    
                     uni.navigateTo({
                         url: '/pages/index/list'
                     })

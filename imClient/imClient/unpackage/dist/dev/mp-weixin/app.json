@@ -42,6 +42,5 @@
     "components": "/pages/component/home",
     "plugin": "/pages/plugin/home",
     "cu-custom": "/colorui/components/cu-custom"
-  },
-  "sitemapLocation": "sitemap11.json"
+  }
 }
