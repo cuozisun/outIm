@@ -96,6 +96,7 @@ class UserLogic
             return_json(array('code'=>3002,'msg'=>'该用户不存在'));
         }
         return $result;
+        
     }
 
 
