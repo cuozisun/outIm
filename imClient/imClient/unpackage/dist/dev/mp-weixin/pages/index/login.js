@@ -223,16 +223,15 @@ var app = getApp();var _default = { data: function data() {return { PageCur: 'ba
       that.$store.commit('setUid', that.id);
       that.$store.dispatch('webSocketInit'); //初始化ws
       this.addCount();
-
+      console.log(that.$store.state.webSocketIsReady);
       if (that.$store.state.webSocketIsReady) {
-
         uni.navigateTo({
           url: '/pages/index/list' });
 
       } else {
         that.$store.commit('setCallbakc', function (res) {
           uni.navigateTo({
-            url: '/pages/index/chat' });
+            url: '/pages/index/list' });
 
         });
       }

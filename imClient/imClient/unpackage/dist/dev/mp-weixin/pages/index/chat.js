@@ -142,58 +142,183 @@ Object.defineProperty(exports, "__esModule", { value: true });exports.default = 
 
 
 
-var _server = _interopRequireDefault(__webpack_require__(/*! @/node_modules/prettier/server.js */ 13));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };} //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-var app = getApp();var _default = { data: function data() {return { PageCur: 'basics', id: '3' };}, onLoad: function onLoad(options) {var SocketTask = app.globalData.SocketTask;}, computed: { //监听接收到的消息
-    socketMsgs: function socketMsgs() {
-      return this.$websocket.getters.socketMsgs;
-    } },
-
-  watch: {
-    'socketMsgs': {
-      //处理接收到的消息
-      handler: function handler() {
-        var that = this;
-        var sMsg = that.socketMsgs;
-        console.log('聊天页面的接收');
-
-      } } },
 
 
 
-  methods: {
-    regiest: function regiest()
-    {
-      var that = this;
-      _server.default.getJSON('/user/registeUser', {
-        accid: '18831913100',
-        nick_name: '哈哈哈',
-        appid: '9046c33bace33e2a17c71a21c34dabc1' },
-      function (res) {
-        if (res.code == '1001') {
-          that.setData({
-            id: res.data.uid });
 
-        }
 
-      });
-    },
-    login: function login()
-    {
-      var that = this;
-      that.$websocket.commit('setUid', that.id);
-      that.$websocket.dispatch('webSocketInit'); //初始化ws
-    } } };exports.default = _default;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var _server = _interopRequireDefault(__webpack_require__(/*! @/node_modules/prettier/server.js */ 13));
+var _vuex = __webpack_require__(/*! vuex */ 12);function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}function ownKeys(object, enumerableOnly) {var keys = Object.keys(object);if (Object.getOwnPropertySymbols) {var symbols = Object.getOwnPropertySymbols(object);if (enumerableOnly) symbols = symbols.filter(function (sym) {return Object.getOwnPropertyDescriptor(object, sym).enumerable;});keys.push.apply(keys, symbols);}return keys;}function _objectSpread(target) {for (var i = 1; i < arguments.length; i++) {var source = arguments[i] != null ? arguments[i] : {};if (i % 2) {ownKeys(Object(source), true).forEach(function (key) {_defineProperty(target, key, source[key]);});} else if (Object.getOwnPropertyDescriptors) {Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));} else {ownKeys(Object(source)).forEach(function (key) {Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));});}}return target;}function _defineProperty(obj, key, value) {if (key in obj) {Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true });} else {obj[key] = value;}return obj;} //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+var app = getApp();var _default = { data: function data() {return { PageCur: 'basics', id: '3', InputBottom: 0 };}, onLoad: function onLoad(options) {var that = this;console.log(options);return;var key = options.key;this.$store.commit('takeTalkDetail', key);}, computed: _objectSpread(_objectSpread({}, (0, _vuex.mapState)(['talkDetail', 'uid'])), {}, { socketMsgs: function socketMsgs() {return this.$store.getters.socketMsgs;} }), watch: { 'socketMsgs': { //处理接收到的消息
+      handler: function handler() {var that = this;var sMsg = that.socketMsgs;console.log('聊天页面的接收');} } }, methods: { regiest: function regiest() {}, login: function login() {}, InputFocus: function InputFocus(e) {this.InputBottom = e.detail.height;}, InputBlur: function InputBlur(e) {this.InputBottom = 0;} } };exports.default = _default;
 
 /***/ })
 

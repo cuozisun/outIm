@@ -145,7 +145,7 @@ class Api extends BaseController
         $handler->select(1);
         //存储聊天内容
         if ($handler->llen($key)>=100) {
-            $handler->rpop($key,array($params['uid']=>$params['data']));
+            $handler->rpop($key);
         }
         $handler->lpush($key,array($params['uid']=>$params['data']));
 

@@ -904,7 +904,7 @@ function initData(vueOptions, context) {
     try {
       data = data.call(context); // 支持 Vue.prototype 上挂的数据
     } catch (e) {
-      if (Object({"VUE_APP_NAME":"imClient","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG) {
+      if (Object({"NODE_ENV":"development","VUE_APP_NAME":"imClient","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG) {
         console.warn('根据 Vue 的 data 函数初始化小程序 data 失败，请尽量确保 data 函数中不访问 vm 对象，否则可能影响首次数据渲染速度。', data);
       }
     }
@@ -7331,7 +7331,7 @@ function type(obj) {
 
 function flushCallbacks$1(vm) {
     if (vm.__next_tick_callbacks && vm.__next_tick_callbacks.length) {
-        if (Object({"VUE_APP_NAME":"imClient","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG) {
+        if (Object({"NODE_ENV":"development","VUE_APP_NAME":"imClient","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG) {
             var mpInstance = vm.$scope;
             console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + vm._uid +
                 ']:flushCallbacks[' + vm.__next_tick_callbacks.length + ']');
@@ -7352,14 +7352,14 @@ function nextTick$1(vm, cb) {
     //1.nextTick 之前 已 setData 且 setData 还未回调完成
     //2.nextTick 之前存在 render watcher
     if (!vm.__next_tick_pending && !hasRenderWatcher(vm)) {
-        if(Object({"VUE_APP_NAME":"imClient","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG){
+        if(Object({"NODE_ENV":"development","VUE_APP_NAME":"imClient","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG){
             var mpInstance = vm.$scope;
             console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + vm._uid +
                 ']:nextVueTick');
         }
         return nextTick(cb, vm)
     }else{
-        if(Object({"VUE_APP_NAME":"imClient","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG){
+        if(Object({"NODE_ENV":"development","VUE_APP_NAME":"imClient","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG){
             var mpInstance$1 = vm.$scope;
             console.log('[' + (+new Date) + '][' + (mpInstance$1.is || mpInstance$1.route) + '][' + vm._uid +
                 ']:nextMPTick');
@@ -7445,7 +7445,7 @@ var patch = function(oldVnode, vnode) {
     });
     var diffData = this.$shouldDiffData === false ? data : diff(data, mpData);
     if (Object.keys(diffData).length) {
-      if (Object({"VUE_APP_NAME":"imClient","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG) {
+      if (Object({"NODE_ENV":"development","VUE_APP_NAME":"imClient","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG) {
         console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + this._uid +
           ']差量更新',
           JSON.stringify(diffData));
@@ -8046,12 +8046,13 @@ var store = new _vuex.default.Store({
     webSocketPingTime: 9000, // 心跳的间隔，当前为 10秒,
     webSocketReconnectCount: 0, // 重连次数
     webSocketIsReconnect: true, // 是否重连
-    webSocketIsReady: true,
+    webSocketIsReady: false,
     uid: null, //ws登录userId
     sid: null, //ws登录token
     msg: null, //接收到的信息
     Callback: null, //异步回调时间
     login: false,
+    nowChatPage: '', //当前所处的聊天页面
 
     //展示数据
     // talkList:[{'nick_name':'到家','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png','id':'3','no_read':'1','last_log':'xix','not_ring':'1'},{'nick_name':'xixi4','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png','id':'4','no_read':'0','last_log':'xix','not_ring':'0'}],
@@ -8074,6 +8075,18 @@ var store = new _vuex.default.Store({
     setUid: function setUid(state, uid) {
       state.uid = uid;
     },
+    setNowChatPage: function setNowChatPage(state, string) {
+      state.nowChatPage = string;
+    },
+    setTalkDetail: function setTalkDetail(state) {
+      state.talkDetail = [];
+    },
+    setScroolTime: function setScroolTime(state) {
+      state.scroolTime = 0;
+    },
+    setRow: function setRow(state) {
+      state.row = 0;
+    },
     setTalkList: function setTalkList(state, object) {
       console.log(state.talkList);
       state.talkList = object;
@@ -8084,6 +8097,25 @@ var store = new _vuex.default.Store({
       state.sortList = object;
       console.log(state.sortList);
     },
+
+
+    //发送http请求登录后设置用户token 用于ws登录
+    setSid: function setSid(state, sid) {
+      state.sid = sid;
+    },
+
+    setCallbakc: function setCallbakc(state, Callback) {
+      console.log(Callback);
+      state.Callback = Callback;
+    },
+    //充值聊天页面属性
+    resetChatProp: function resetChatProp(state) {
+      this.commit('setNowChatPage', '');
+      this.commit('setTalkDetail');
+      this.commit('setScroolTime');
+      this.commit('setRow');
+    },
+
     takeTalkDetail: function takeTalkDetail(state, index) {
       console.log(index);
       //获取key对应的缓存
@@ -8102,16 +8134,6 @@ var store = new _vuex.default.Store({
       }
       console.log(state.talkDetail);
     },
-
-    //发送http请求登录后设置用户token 用于ws登录
-    setSid: function setSid(state, sid) {
-      state.sid = sid;
-    },
-
-    setCallbakc: function setCallbakc(state, Callback) {
-      console.log(Callback);
-      state.Callback = Callback;
-    },
     //初始化ws 用户登录后调用
     webSocketInit: function webSocketInit(state) {
       var that = this;
@@ -8120,12 +8142,15 @@ var store = new _vuex.default.Store({
         url: "ws://127.0.0.1:8282",
         success: function success(data) {
           console.log("websocket连接成功");
+          //uni,showloading('连接服务器中)
         } });
 
 
       // ws连接开启后登录验证
       state.socketTask.onOpen(function (res) {
         console.log("WebSocket连接正常打开中...！");
+        //uni,hideloading('连接服务器中)
+        that.state.webSocketIsReady = true;
         // 注：只有连接正常打开中 ，才能正常收到消息
         state.socketTask.onMessage(function (res) {
           console.log("收到服务器内容：" + res.data);
@@ -8188,17 +8213,26 @@ var store = new _vuex.default.Store({
               var uid = state.uid;
               var key = Math.max(from_id, uid) + '_' + Math.min(from_id, uid);
 
+
+
               var inserdata = '{"' + from_id + '":"' + result.data.data + '"}';
               // var inserdata = {from_id:result.data.data};
               console.log(inserdata);
               inserdata = JSON.parse(inserdata);
               //判断目前结构状态
               var show_data = uni.getStorageSync(key);
-              if (show_data) {
-                show_data.unshift(inserdata);
-              } else {
+              if (!show_data) {
                 show_data = [];
-                show_data.unshift(inserdata);
+              }
+              show_data.unshift(inserdata);
+              //如果在当前页面
+              if (that.state.nowChatPage == key) {
+                //已取聊天记录条数+1;
+                state.row = state.row + 1;
+                //将新消息插入talkDetail头部
+                state.talkDetail.unshift(inserdata);
+                console.log(state.talkDetail);
+                console.log(state.row);
               }
               uni.setStorage({
                 key: key,
@@ -8219,12 +8253,14 @@ var store = new _vuex.default.Store({
       // 链接开启后登录验证
       state.socketTask.onError(function (errMsg) {
         console.log("ws连接异常");
+        //uni,hideloading('连接异常)
         that.commit('webSocketClose');
       });
 
       // 链接开启后登录验证
       state.socketTask.onClose(function (errMsg) {
         console.log("ws连接关闭");
+        //uni,hideloading('ws连接关闭)
         that.commit('webSocketClose');
       });
 
@@ -8330,7 +8366,7 @@ var store = new _vuex.default.Store({
       state.talkList.push({ 'nick_name': 'haha', 'head_image': 'http://images.750679.com/public/upload/2021/1-29/head.png', 'id': '5', 'no_read': '1', 'last_log': 'xix', 'not_ring': '0' });
       state.sortList.user_5 = 2;
     },
-
+    //新会话
     changeList: function changeList(state, result)
     {
       var inserdata = JSON.parse(result.data.uinfo);
@@ -8339,13 +8375,20 @@ var store = new _vuex.default.Store({
       inserdata.not_ring = '0';
       console.log(inserdata);
       var index = 'user_' + result.data.from_id;
-      state.talkList.unshift(inserdata);
-      state.sortList[index] = state.sortList.length + 1;
-      for (var i = 0; i < state.talkList.length; i++) {
-        state.sortList['user_' + state.talkList[i].id] = i;
+      if (state.talkList.length != 0) {
+        state.talkList.unshift(inserdata);
+        state.sortList[index] = state.sortList.length + 1;
+        for (var i = 0; i < state.talkList.length; i++) {
+          state.sortList['user_' + state.talkList[i].id] = i;
+        }
+      } else {
+        state.talkList = [inserdata];
+        state.sortList = { index: 0 };
       }
-    },
 
+
+    },
+    //旧会话调整顺序
     findPosition: function findPosition(state, result)
     {
       var index = 'user_' + result.data.from_id;

@@ -128,7 +128,7 @@ __webpack_require__.r(__webpack_exports__);
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;
 
 
 
@@ -274,6 +274,11 @@ var _vuex = __webpack_require__(/*! vuex */ 12);function ownKeys(object, enumera
   onLoad: function onLoad(options) {
 
   },
+  onShow: function onShow()
+  {
+    //只要到列表页即重置聊天页需要的数据
+    this.$store.commit('resetChatProp');
+  },
   watch: {
     'socketMsgs': {
       //处理接收到的消息
@@ -290,14 +295,20 @@ var _vuex = __webpack_require__(/*! vuex */ 12);function ownKeys(object, enumera
     change: function change() {
       this.$store.commit('add');
     },
-    chat: function chat(item)
+    jumpchat: function jumpchat(item)
     {
       var uid = this.$store.state.uid;
       var from_id = item.id;
       var key = Math.max(from_id, uid) + '_' + Math.min(from_id, uid);
-      this.$store.commit('takeTalkDetail', key);
+      var chat_key = 'user_'.from_id;
+
+      // this.$store.commit('takeTalkDetail',key)
+      this.$store.commit('setNowChatPage', key);
+      uni.navigateTo({
+        url: '/pages/index/chat?item=' + item });
 
     } } };exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
 
 /***/ })
 

@@ -50,7 +50,7 @@
 						<view class="cu-tag round bg-grey sm">5</view>
 					</view>
 				</view> -->
-				<view class="cu-item" v-for="(item,index) in talkList" :key="index" @tap="chat(item)">
+				<view class="cu-item" v-for="(item,index) in talkList" :key="index" @tap="jumpchat(item)">
 					<view class="cu-avatar radius lg" v-bind:style="{ background: 'url('+item.head_image+') center center no-repeat', 'background-size':'cover' }">
 						<view class="cu-tag badge" v-if="item.no_read !== '0'">{{item.no_read}}+</view>
 					</view>
@@ -144,6 +144,11 @@
 		onLoad(options) {
 			
 		},
+		onShow()
+		{
+			//只要到列表页即重置聊天页需要的数据
+			this.$store.commit('resetChatProp');
+		},
         watch: {
             'socketMsgs': {
                 //处理接收到的消息
@@ -160,13 +165,18 @@
             change:function(){
                 this.$store.commit('add')
             },
-            chat:function(item)
+            jumpchat:function(item)
             {
                 var uid = this.$store.state.uid;
                 var from_id = item.id;
                 var key = Math.max(from_id,uid)+'_'+Math.min(from_id,uid);
-                this.$store.commit('takeTalkDetail',key)
-                
+				var chat_key = 'user_'.from_id;
+
+                // this.$store.commit('takeTalkDetail',key)
+                this.$store.commit('setNowChatPage',key)
+				uni.navigateTo({
+					url: '/pages/index/chat?item='+item
+				})
             }
         }
 
