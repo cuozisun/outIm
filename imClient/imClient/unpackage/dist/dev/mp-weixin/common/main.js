@@ -127,6 +127,8 @@ var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ 2));function _i
     var that = this;
     uni.getSystemInfo({
       success: function success(e) {
+        console.log(e);
+        _vue.default.prototype.scroolHeight = e.screenHeight - 50;
 
 
 
@@ -150,21 +152,6 @@ var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ 2));function _i
       } });
 
     var socket_flag = false;
-    //连接websoket
-    // var  SocketTask = uni.connectSocket({
-    // 	url: 'ws://127.0.0.1:8282',
-    // 	fail:function(res){
-    // 	console.log("连接服务器websocket_失败",res);
-    // 	},
-    // 	success:function(res){
-    // 		console.log("连接服务器websocket_成功",res);
-    // 		socket_flag = true;
-    // 	},
-    // 	complete:function(res){
-    // 		console.log("连接服务器websocket_完成",res);
-    // 	}
-    // });
-    // that.globalData.SocketTask = SocketTask;
 
     _vue.default.prototype.ColorList = [{
       title: '嫣红',

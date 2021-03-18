@@ -23,7 +23,7 @@ const store = new Vuex.Store({
         //展示数据
         // talkList:[{'nick_name':'到家','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png','id':'3','no_read':'1','last_log':'xix','not_ring':'1'},{'nick_name':'xixi4','head_image':'http://images.750679.com/public/upload/2021/1-29/head.png','id':'4','no_read':'0','last_log':'xix','not_ring':'0'}],
 		// sortList:{'user_3':0,'user_4':1},
-		talkList:[],//聊天列表
+		talkList:{},//聊天列表
 		sortList:{},//聊天页表排序
 		talkDetail:[],//聊天详情页展示
 		row:0,//已取聊天记录n条
@@ -58,6 +58,10 @@ const store = new Vuex.Store({
 			state.talkList = object
 			console.log(state.talkList)
 		},
+		setTalkListNoRead(state,key) {
+			var chat_key = 'user_'+key;
+			state.talkList[chat_key].no_read = '0';
+		},
 		setSortList(state, object) {
 			console.log(state.sortList)
 			state.sortList = object
@@ -74,7 +78,7 @@ const store = new Vuex.Store({
 			console.log(Callback)
 			state.Callback = Callback
 		},
-		//充值聊天页面属性
+		//重置聊天页面属性
 		resetChatProp (state) {
 			this.commit('setNowChatPage','')
 			this.commit('setTalkDetail')
@@ -83,11 +87,8 @@ const store = new Vuex.Store({
 		},
 
 		takeTalkDetail (state, index) {
-			console.log(index)
 			//获取key对应的缓存
 			var talkDetail = uni.getStorageSync(index);
-			console.log(talkDetail.length)
-			console.log(state.row)
 			if (state.row >= talkDetail.length) {
 				return
 			}
@@ -148,41 +149,21 @@ const store = new Vuex.Store({
 							break;
 						case '6006'://接到他人发送消息
 							//判断发信息用户是否在列表中
-							if (that.state.sortList['user_'+result.data.from_id] !== undefined) {
+							if (that.state.talkList['user_'+result.data.from_id] !== undefined) {
 								//旧会话改变列表顺序
 								that.commit('findPosition',result);
-							} else if (that.state.sortList['user_'+result.data.from_id] === undefined) {
+							} else if (that.state.talkList['user_'+result.data.from_id] === undefined) {
 								//新会话
 								that.commit('changeList',result);
 							}
-							//存储聊天关系
-							uni.setStorage({
-								key: 'sortList',
-								data: state.sortList,
-								success: function () {
-									console.log('聊天关系存储成功')
-								}
-							});
-							console.log(state.talkList)
-							uni.setStorage({
-								key: 'talkList',
-								data: state.talkList,
-								success: function () {
-									console.log('聊天关系存储成功')
-								}
-							});
 							
-
 							//存储聊天内容
 								//构建插入数据
 							var from_id = result.data.from_id;
 							var uid = state.uid;
 							var key = Math.max(from_id,uid)+'_'+Math.min(from_id,uid);
-
 							
-							
-							var inserdata = '{"'+from_id+'":"'+result.data.data+'"}';
-							// var inserdata = {from_id:result.data.data};
+							var inserdata = '{"content":"'+result.data.data+'","postid":"'+from_id+'"}';
 							console.log(inserdata)
 							inserdata = JSON.parse(inserdata)
 								//判断目前结构状态
@@ -190,16 +171,23 @@ const store = new Vuex.Store({
 							if (!show_data) {
 								show_data = [];
 							}
-							show_data.unshift(inserdata);
+							show_data.push(inserdata);
 							//如果在当前页面
 							if (that.state.nowChatPage == key) {
 								//已取聊天记录条数+1;
 								state.row = state.row + 1;
 								//将新消息插入talkDetail头部
-								state.talkDetail.unshift(inserdata);
-								console.log(state.talkDetail)
-								console.log(state.row)
+								state.talkDetail.push(inserdata);
+								//未读消息设置为0
+								state.talkList['user_'+result.data.from_id].no_read = '0';
 							}
+							uni.setStorage({
+								key: 'talkList',
+								data: state.talkList,
+								success: function () {
+									console.log('聊天关系存储成功')
+								}
+							});
 							uni.setStorage({
 								key: key,
 								data: show_data,
@@ -335,41 +323,40 @@ const store = new Vuex.Store({
 		//新会话
 		changeList(state,result)
 		{
+			var that = this;
 			var inserdata = JSON.parse(result.data.uinfo);
 			inserdata.no_read = 1;
 			inserdata.last_log = result.data.data;
 			inserdata.not_ring = '0';
-			console.log(inserdata)
-			var index = 'user_'+result.data.from_id;
-			if (state.talkList.length != 0) {
-				state.talkList.unshift(inserdata);
-				state.sortList[index] = state.sortList.length + 1;
-				for (var i = 0;i<state.talkList.length;i++) {
-					state.sortList['user_'+state.talkList[i].id] = i;
-				}
-			} else {
-				state.talkList = [inserdata];
-				state.sortList = {index:0};
-			}
-			
-			
+			that.commit('changeJsonSort',inserdata);
 		},
+        
 		//旧会话调整顺序
 		findPosition(state,result)
 		{
+            var that = this;
 			var index = 'user_'+result.data.from_id;
-			var position =  state.sortList[index];
-			var temp = state.talkList[position];
+			var temp = state.talkList[index];
+			delete state.talkList[index];
 			temp.no_read++;
 			temp.last_log = result.data.data;
 			temp.not_ring = '0';
-			state.talkList.splice(position,1); 
-			state.talkList.unshift(temp)
-			for (var i = 0;i<state.talkList.length;i++) {
-				state.sortList['user_'+state.talkList[i].id] = i;
-			}
-			// console.log(state.sortList)
+            that.commit('changeJsonSort',temp);
+            
 		},
+        changeJsonSort(state,newJson)
+        {
+			var index = 'user_'+newJson.id;
+            var changeTalkList = JSON.stringify(state.talkList);
+            newJson = JSON.stringify(newJson);
+			if (changeTalkList != '""' &&  changeTalkList !=='{}') {
+				changeTalkList = changeTalkList.replace("{",'{"'+index+'":'+newJson+',');
+			} else {
+				changeTalkList = "{}";
+				changeTalkList = changeTalkList.replace("{",'{"'+index+'":'+newJson);
+			}
+            state.talkList = JSON.parse(changeTalkList)
+        },
         add(state){
             state.test = '456'
         }

@@ -3,27 +3,22 @@
         <!-- <cu-custom bgColor="bg-gradual-pink" :isBack="true"><block slot="backText">返回</block><block slot="content">聊天</block></cu-custom> -->
 		<view class="cu-chat">
             <view v-for="(item,index) in talkDetail" :key="index">
-                123
+                <view v-bind:class="[item.postid == uid ? 'self' : '', 'cu-item']">
+					<view class="main" v-if="item.postid == uid">
+						<view class="content bg-green shadow" >
+							<text>{{item.postid}}喵喵喵！喵喵喵！喵喵喵！喵喵！喵喵！！喵！喵喵喵！</text>
+						</view>
+					</view>
+					<view class="cu-avatar radius" style="background-image:url(https://ossweb-img.qq.com/images/lol/web201310/skin/big107000.jpg);"></view>
+					<view class="main" v-if="item.postid != uid">
+						<view class="content  shadow" >
+							<text>{{item.postid}}喵喵喵！喵喵喵！喵喵喵！喵喵！喵喵！！喵！喵喵喵！</text>
+						</view>
+					</view>
+					<view class="date">2018年3月23日 13:23</view>
+				</view>
             </view>
-			<view class="cu-item self">
-				<view class="main">
-					<view class="content bg-green shadow">
-						<text>喵喵喵！喵喵喵！喵喵喵！喵喵！喵喵！！喵！喵喵喵！</text>
-					</view>
-				</view>
-				<view class="cu-avatar radius" style="background-image:url(https://ossweb-img.qq.com/images/lol/web201310/skin/big107000.jpg);"></view>
-				<view class="date">2018年3月23日 13:23</view>
-			</view>
-			<!-- <view class="cu-info round">对方撤回一条消息!</view> -->
-			<view class="cu-item">
-				<view class="cu-avatar radius" style="background-image:url(https://ossweb-img.qq.com/images/lol/web201310/skin/big143004.jpg);"></view>
-				<view class="main">
-					<view class="content shadow">
-						<text>喵喵喵！喵喵喵！</text>
-					</view>
-				</view>
-				<view class="date "> 13:23</view>
-			</view>
+			
 			<!-- <view class="cu-info">
 				<text class="cuIcon-roundclosefill text-red "></text> 对方拒绝了你的消息
 			</view> -->
@@ -74,6 +69,7 @@
 				</view>
 				<view class="date">13:23</view>
 			</view> -->
+			<view class="bottom"></view>
 		</view>
 
 		<view class="cu-bar foot input" :style="[{bottom:InputBottom+'px'}]">
@@ -117,7 +113,16 @@
             //监听接收到的消息
             ...mapState(['talkDetail','uid']),
             socketMsgs() {
-                return this.$store.getters.socketMsgs
+				//接收到本页面信息时需要判断是否需要滚动,如果滑动距离大于一个屏幕高度则不滚动,反之滚动到底,自己发消息点击输入框则滚动到底
+                uni.createSelectorQuery().select('.bottom').boundingClientRect(function (rect) {
+					console.log(rect)
+					// 使页面滚动到底部
+					uni.pageScrollTo({
+						scrollTop: rect.bottom*10
+					})
+				}).exec()
+				console.log(this.$store.getters.socketMsgs)
+				return this.$store.getters.socketMsgs
             }
         },
         watch: {

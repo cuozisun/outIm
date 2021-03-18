@@ -170,12 +170,15 @@
                 var uid = this.$store.state.uid;
                 var from_id = item.id;
                 var key = Math.max(from_id,uid)+'_'+Math.min(from_id,uid);
-				var chat_key = 'user_'.from_id;
-
-                // this.$store.commit('takeTalkDetail',key)
-                this.$store.commit('setNowChatPage',key)
+				
+				//取出聊天数据缓存
+                this.$store.commit('takeTalkDetail',key);
+				//设置当前聊天页面
+                this.$store.commit('setNowChatPage',key);
+				//重置未读条数
+				this.$store.commit('setTalkListNoRead',from_id);
 				uni.navigateTo({
-					url: '/pages/index/chat?item='+item
+					url: '/pages/index/chat?key='+key
 				})
             }
         }

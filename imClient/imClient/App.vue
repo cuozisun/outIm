@@ -5,6 +5,8 @@
 			var that = this;
 			uni.getSystemInfo({
 				success: function(e) {
+					console.log(e);
+					Vue.prototype.scroolHeight = e.screenHeight - 50;
 					// #ifndef MP
 					Vue.prototype.StatusBar = e.statusBarHeight;
 					if (e.platform == 'android') {
@@ -28,21 +30,6 @@
 				}
 			})
 			var socket_flag = false;
-			//连接websoket
-			// var  SocketTask = uni.connectSocket({
-			// 	url: 'ws://127.0.0.1:8282',
-			// 	fail:function(res){
-			// 	console.log("连接服务器websocket_失败",res);
-			// 	},
-			// 	success:function(res){
-			// 		console.log("连接服务器websocket_成功",res);
-			// 		socket_flag = true;
-			// 	},
-			// 	complete:function(res){
-			// 		console.log("连接服务器websocket_完成",res);
-			// 	}
-			// });
-			// that.globalData.SocketTask = SocketTask;
 			
 			Vue.prototype.ColorList = [{
 					title: '嫣红',

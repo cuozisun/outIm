@@ -71,8 +71,8 @@
             },
             loadStorage() {
                 //判断是否有缓存如果有则进行加载
-                var sortList = uni.getStorageSync('sortList');
-                this.$store.commit('setSortList',sortList)
+                // var sortList = uni.getStorageSync('sortList');
+                // this.$store.commit('setSortList',sortList)
 
                 var talkList = uni.getStorageSync('talkList');
                 this.$store.commit('setTalkList',talkList)

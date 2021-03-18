@@ -128,11 +128,7 @@ __webpack_require__.r(__webpack_exports__);
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;
-
-
-
-
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;
 
 
 
@@ -313,12 +309,11 @@ var _vuex = __webpack_require__(/*! vuex */ 12);function _interopRequireDefault(
 //
 //
 //
-//
-//
-//
-//
-var app = getApp();var _default = { data: function data() {return { PageCur: 'basics', id: '3', InputBottom: 0 };}, onLoad: function onLoad(options) {var that = this;console.log(options);return;var key = options.key;this.$store.commit('takeTalkDetail', key);}, computed: _objectSpread(_objectSpread({}, (0, _vuex.mapState)(['talkDetail', 'uid'])), {}, { socketMsgs: function socketMsgs() {return this.$store.getters.socketMsgs;} }), watch: { 'socketMsgs': { //处理接收到的消息
+var app = getApp();var _default = { data: function data() {return { PageCur: 'basics', id: '3', InputBottom: 0 };}, onLoad: function onLoad(options) {var that = this;console.log(options);return;var key = options.key;this.$store.commit('takeTalkDetail', key);}, computed: _objectSpread(_objectSpread({}, (0, _vuex.mapState)(['talkDetail', 'uid'])), {}, { socketMsgs: function socketMsgs() {//接收到本页面信息时需要判断是否需要滚动,如果滑动距离大于一个屏幕高度则不滚动,反之滚动到底,自己发消息点击输入框则滚动到底
+      uni.createSelectorQuery().select('.bottom').boundingClientRect(function (rect) {console.log(rect); // 使页面滚动到底部
+        uni.pageScrollTo({ scrollTop: rect.bottom * 10 });}).exec();console.log(this.$store.getters.socketMsgs);return this.$store.getters.socketMsgs;} }), watch: { 'socketMsgs': { //处理接收到的消息
       handler: function handler() {var that = this;var sMsg = that.socketMsgs;console.log('聊天页面的接收');} } }, methods: { regiest: function regiest() {}, login: function login() {}, InputFocus: function InputFocus(e) {this.InputBottom = e.detail.height;}, InputBlur: function InputBlur(e) {this.InputBottom = 0;} } };exports.default = _default;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
 
 /***/ })
 
