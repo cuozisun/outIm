@@ -6,7 +6,51 @@
 			uni.getSystemInfo({
 				success: function(e) {
 					console.log(e);
-					Vue.prototype.scroolHeight = e.screenHeight - 50;
+					let statusBar = 0;//状态栏高度
+					let customBar = 0;//导航栏高度
+					
+					
+					// #ifdef MP
+					statusBar = e.statusBarHeight;
+					customBar = e.statusBarHeight + 45;
+					if (e.platform === 'android') {
+						this.$store.commit('SET_SYSTEM_IOSANDROID', false);
+						customBar = e.statusBarHeight + 50;
+					}
+					// #endif
+					
+					
+					// #ifdef MP-WEIXIN
+					statusBar = e.statusBarHeight
+					// @ts-ignore
+					const customs = uni.getMenuButtonBoundingClientRect();
+					customBar = custom.bottom + custom.top - e.statusBarHeight;
+					// #endif
+
+
+					// #ifdef MP-ALIPAY
+					statusBar = e.statusBarHeight;
+					customBar = e.statusBarHeight + e.titleBarHeight;
+					// #endif
+
+
+					// #ifdef APP-PLUS
+					console.log('app-plus', e);
+					statusBar = e.statusBarHeight;
+					customBar = e.statusBarHeight + 45;
+					// #endif
+
+
+					// #ifdef H5
+					statusBar = 0;
+					customBar = e.statusBarHeight + 45;
+					// #endif
+
+					console.log(statusBar);
+					console.log(customBar);
+
+					Vue.prototype.scroolHeight = e.screenHeight - 50 ;
+					console.log(Vue.prototype.scroolHeight)
 					// #ifndef MP
 					Vue.prototype.StatusBar = e.statusBarHeight;
 					if (e.platform == 'android') {

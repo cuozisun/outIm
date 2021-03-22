@@ -2053,6 +2053,7 @@ button.cuIcon.lg {
 .cu-chat {
 	display: flex;
 	flex-direction: column;
+	padding-bottom: 100upx;
 }
 
 .cu-chat .cu-item {

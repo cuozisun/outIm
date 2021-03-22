@@ -69,7 +69,7 @@
 				</view>
 				<view class="date">13:23</view>
 			</view> -->
-			<view class="bottom"></view>
+			<view class="bottom" id="bottom"></view>
 		</view>
 
 		<view class="cu-bar foot input" :style="[{bottom:InputBottom+'px'}]">
@@ -97,9 +97,11 @@
 	export default {
 		data() {
 		return {
+				scroolHeight:this.scroolHeight,
 				PageCur: 'basics',
                 id:'3',
                 InputBottom: 0,
+				scrollTop:0,
 			}
 		},
 		onLoad(options) {
@@ -109,16 +111,19 @@
             var key = options.key;
             this.$store.commit('takeTalkDetail',key)
 		},
+		onPageScroll: function (e) {
+		},
         computed: {
             //监听接收到的消息
             ...mapState(['talkDetail','uid']),
             socketMsgs() {
 				//接收到本页面信息时需要判断是否需要滚动,如果滑动距离大于一个屏幕高度则不滚动,反之滚动到底,自己发消息点击输入框则滚动到底
-                uni.createSelectorQuery().select('.bottom').boundingClientRect(function (rect) {
+                uni.createSelectorQuery().select('#bottom').boundingClientRect(function (rect) {
 					console.log(rect)
 					// 使页面滚动到底部
+					console.log(rect.bottom)
 					uni.pageScrollTo({
-						scrollTop: rect.bottom*10
+						scrollTop: rect.bottom+50
 					})
 				}).exec()
 				console.log(this.$store.getters.socketMsgs)

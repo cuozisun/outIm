@@ -128,7 +128,51 @@ var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ 2));function _i
     uni.getSystemInfo({
       success: function success(e) {
         console.log(e);
+        var statusBar = 0; //状态栏高度
+        var customBar = 0; //导航栏高度
+
+
+
+        statusBar = e.statusBarHeight;
+        customBar = e.statusBarHeight + 45;
+        if (e.platform === 'android') {
+          this.$store.commit('SET_SYSTEM_IOSANDROID', false);
+          customBar = e.statusBarHeight + 50;
+        }
+
+
+
+
+        statusBar = e.statusBarHeight;
+        // @ts-ignore
+        var customs = uni.getMenuButtonBoundingClientRect();
+        customBar = custom.bottom + custom.top - e.statusBarHeight;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        console.log(statusBar);
+        console.log(customBar);
+
         _vue.default.prototype.scroolHeight = e.screenHeight - 50;
+        console.log(_vue.default.prototype.scroolHeight);
 
 
 
