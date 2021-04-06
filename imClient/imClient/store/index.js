@@ -93,13 +93,73 @@ const store = new Vuex.Store({
 				return
 			}
 			if (talkDetail) {
-				//取出15条
-				var tempData = talkDetail.slice(state.scroolTime * 15,(state.scroolTime+1) * 15);
+				//取出最后15条
+				if (state.scroolTime !== 0) {
+					var tempData = talkDetail.slice((state.scroolTime+1) * -15,state.scroolTime * -15);
+				} else {
+					var tempData = talkDetail.slice(-15);
+				}
+				
 				state.scroolTime++; 
 				state.row = state.row + tempData.length;
 				state.talkDetail = state.talkDetail.concat(tempData);
 			} 
 			console.log(state.talkDetail)
+		},
+
+		saveTalkData (state, result) {
+			// console.log(result)
+			var that = this;
+			//构建插入数据
+			var from_id = result.data.from_id;
+			var uid = state.uid;
+			var key = Math.max(from_id,uid)+'_'+Math.min(from_id,uid);
+			var inserdata = {}
+			switch (result.data.type) {
+				case 1:
+					inserdata = '{"content":"'+result.data.data+'","postid":"'+from_id+'","date":"'+result.data.date+'","type":"'+result.data.type+'"}';
+					break;
+			
+				default:
+					inserdata = '{"content":"'+result.data.data+'","postid":"'+from_id+'","date":"'+result.data.date+'","type":"'+result.data.type+'"}';
+					break;
+			}
+				
+			// console.log(inserdata)
+			inserdata = JSON.parse(inserdata)
+				//判断目前结构状态
+			var show_data = uni.getStorageSync(key);
+			if (!show_data) {
+				show_data = [];
+			}
+			show_data.push(inserdata);
+			//如果在当前页面
+			if (that.state.nowChatPage == key) {
+				console.log('当前页面')
+				//已取聊天记录条数+1;
+				state.row = state.row + 1;
+				//将新消息插入talkDetail头部
+				console.log(state.talkDetail)
+				state.talkDetail.push(inserdata);
+				console.log(state.talkDetail)
+				//未读消息设置为0
+				state.talkList['user_'+result.data.from_id].no_read = '0';
+			}
+			// console.log(show_data)
+			uni.setStorage({
+				key: 'talkList',
+				data: state.talkList,
+				success: function () {
+					console.log('聊天关系存储成功')
+				}
+			});
+			uni.setStorage({
+				key: key,
+				data: show_data,
+				success: function () {
+					console.log('缓存存储成功')
+				}
+			});
 		},
 		//初始化ws 用户登录后调用
 		webSocketInit(state) {
@@ -156,45 +216,10 @@ const store = new Vuex.Store({
 								//新会话
 								that.commit('changeList',result);
 							}
-							
 							//存储聊天内容
-								//构建插入数据
-							var from_id = result.data.from_id;
-							var uid = state.uid;
-							var key = Math.max(from_id,uid)+'_'+Math.min(from_id,uid);
+							that.commit('saveTalkData',result);
 							
-							var inserdata = '{"content":"'+result.data.data+'","postid":"'+from_id+'"}';
-							console.log(inserdata)
-							inserdata = JSON.parse(inserdata)
-								//判断目前结构状态
-							var show_data = uni.getStorageSync(key);
-							if (!show_data) {
-								show_data = [];
-							}
-							show_data.push(inserdata);
-							//如果在当前页面
-							if (that.state.nowChatPage == key) {
-								//已取聊天记录条数+1;
-								state.row = state.row + 1;
-								//将新消息插入talkDetail头部
-								state.talkDetail.push(inserdata);
-								//未读消息设置为0
-								state.talkList['user_'+result.data.from_id].no_read = '0';
-							}
-							uni.setStorage({
-								key: 'talkList',
-								data: state.talkList,
-								success: function () {
-									console.log('聊天关系存储成功')
-								}
-							});
-							uni.setStorage({
-								key: key,
-								data: show_data,
-								success: function () {
-									console.log('缓存存储成功')
-								}
-							});
+							
 							break;
 						default:
 							break;

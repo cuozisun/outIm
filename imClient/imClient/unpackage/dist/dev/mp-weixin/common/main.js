@@ -130,7 +130,10 @@ var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ 2));function _i
         console.log(e);
         var statusBar = 0; //状态栏高度
         var customBar = 0; //导航栏高度
+        var basepx = 0;
 
+        //计算rpx换算基数
+        basepx = e.screenWidth / 750;
 
 
         statusBar = e.statusBarHeight;
@@ -145,8 +148,13 @@ var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ 2));function _i
 
         statusBar = e.statusBarHeight;
         // @ts-ignore
+        //该api获取的是胶囊的位置信息
         var customs = uni.getMenuButtonBoundingClientRect();
-        customBar = custom.bottom + custom.top - e.statusBarHeight;
+        var customstop = customs.top;
+        var customsheight = customs.height;
+        var customsbottom = customs.bottom;
+        customBar = customstop + customsbottom - e.statusBarHeight + 4;
+        // customBar = custom.bottom + custom.top - e.statusBarHeight;
 
 
 
@@ -171,8 +179,8 @@ var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ 2));function _i
         console.log(statusBar);
         console.log(customBar);
 
-        _vue.default.prototype.scroolHeight = e.screenHeight - 50;
-        console.log(_vue.default.prototype.scroolHeight);
+        // Vue.prototype.scroolHeight = e.screenHeight - 50 ;
+        // console.log(Vue.prototype.scroolHeight)
 
 
 
@@ -193,6 +201,9 @@ var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ 2));function _i
 
 
 
+        //计算聊天页面可滚动高度
+        _vue.default.prototype.scroolHeight = e.screenHeight - customBar - Math.floor(basepx * 100);
+        console.log(_vue.default.prototype.scroolHeight);
       } });
 
     var socket_flag = false;

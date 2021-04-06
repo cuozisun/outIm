@@ -118,16 +118,13 @@ class Api extends BaseController
         Gateway::unbindUid($params['client_id'], $params['uid']);        
     }
 
+
+
     public function sendToUid(Request $request)
     {
-        $check_param = array('uid','data','otheruid');
+        $check_param = array('uid','data','otheruid','type');
         check_must_param($request, $check_param);
         $params = $request->param();
-        $data = [];
-
-        $data['from_id'] = $params['uid'];
-        $data['data'] = $params['data'];
-        $data['date'] = date('Y-m-d H:i:s');
 
         //存入redis中
         // Cache::store('redis')->set($data['from_id'].'1', [1,2,3]);
@@ -151,7 +148,22 @@ class Api extends BaseController
 
         //附带本人信息
         $handler->select(2);
+        $data = [];
+
+        $data['from_id'] = $params['uid'];
+        $data['type'] = $params['type'];
+        $data['date'] = date('Y-m-d H:i:s');
         $data['uinfo'] = $handler->get($params['uid']);
+        //根据类型处理返回数据
+        switch ($params['type']) {
+            case '1'://普通文本
+                $data['data'] = $params['data'];
+                break;
+            
+            default:
+                $data['data'] = $params['data'];
+                break;
+        }
         
         $data = json_encode(array('code'=>'6006','msg'=>'接收消息','data'=>$data));
         Gateway::sendToUid($params['otheruid'], $data);

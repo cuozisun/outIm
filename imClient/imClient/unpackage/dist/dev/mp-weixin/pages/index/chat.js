@@ -309,10 +309,45 @@ var _vuex = __webpack_require__(/*! vuex */ 12);function _interopRequireDefault(
 //
 //
 //
-var app = getApp();var _default = { data: function data() {return { scroolHeight: this.scroolHeight, PageCur: 'basics', id: '3', InputBottom: 0, scrollTop: 0 };}, onLoad: function onLoad(options) {var that = this;console.log(options);return;var key = options.key;this.$store.commit('takeTalkDetail', key);}, onPageScroll: function onPageScroll(e) {}, computed: _objectSpread(_objectSpread({}, (0, _vuex.mapState)(['talkDetail', 'uid'])), {}, { socketMsgs: function socketMsgs() {//接收到本页面信息时需要判断是否需要滚动,如果滑动距离大于一个屏幕高度则不滚动,反之滚动到底,自己发消息点击输入框则滚动到底
-      uni.createSelectorQuery().select('#bottom').boundingClientRect(function (rect) {console.log(rect); // 使页面滚动到底部
-        console.log(rect.bottom);uni.pageScrollTo({ scrollTop: rect.bottom + 50 });}).exec();console.log(this.$store.getters.socketMsgs);return this.$store.getters.socketMsgs;} }), watch: { 'socketMsgs': { //处理接收到的消息
-      handler: function handler() {var that = this;var sMsg = that.socketMsgs;console.log('聊天页面的接收');} } }, methods: { regiest: function regiest() {}, login: function login() {}, InputFocus: function InputFocus(e) {this.InputBottom = e.detail.height;}, InputBlur: function InputBlur(e) {this.InputBottom = 0;} } };exports.default = _default;
+var app = getApp();var _default = { data: function data() {return { scroolHeight: this.scroolHeight, PageCur: 'basics', InputBottom: 0, from_id: '' };}, onLoad: function onLoad(options) {var that = this;console.log(options);that.from_id = options.from_id;var key = options.key; // this.$store.commit('takeTalkDetail',key)
+    uni.pageScrollTo({ selector: '#bottom' });}, onPageScroll: function onPageScroll(e) {}, computed: _objectSpread(_objectSpread({}, (0, _vuex.mapState)(['talkDetail', 'uid'])), {}, { socketMsgs: function socketMsgs() {var that = this; //接收到本页面信息时需要判断是否需要滚动,如果滑动距离大于一个屏幕高度则不滚动,反之滚动到底,自己发消息点击输入框则滚动到底(即底部锚点距离上部高于2个可显示高度)
+      uni.createSelectorQuery().select('#bottom').boundingClientRect(function (rect) {//聊天记录高度
+        if (rect.bottom - that.scroolHeight * 2 <= 0) {// 使页面滚动到底部
+          uni.pageScrollTo({ selector: '#bottom' });}}).exec();return this.$store.getters.socketMsgs;} }), watch: { 'socketMsgs': { //处理接收到的消息
+      handler: function handler() {var that = this;var sMsg = that.socketMsgs;console.log('聊天页面的接收');} } }, methods: { regiest: function regiest() {}, login: function login() {}, InputFocus: function InputFocus(e) {this.InputBottom = e.detail.height;}, InputBlur: function InputBlur(e) {this.InputBottom = 0;}, formSubmit: function formSubmit(e) {var that = this;var data = e.detail.value.msg;if (data === '') {return;}_server.default.postJSON('/api/sendToUid', { uid: that.uid, otheruid: that.from_id, data: data, type: 1 }, function (res) {//result.data.from_id, result.data.type, result.data.data, result.data.date
+        that.$store.commit('saveTalkData', { data: { from_id: that.from_id, type: 1, date: that.makeDate(), data: data } }); // console.log(res);
+        //将发送内容插入到本地存储中
+      });}, makeDate: function makeDate() {var date = new Date();var year = date.getFullYear(); //年 ,从 Date 对象以四位数字返回年份
+      var month = date.getMonth() + 1; //月 ,从 Date 对象返回月份 (0 ~ 11) ,date.getMonth()比实际月份少 1 个月
+      var day = date.getDate(); //日 ,从 Date 对象返回一个月中的某一天 (1 ~ 31)
+      var hours = date.getHours(); //小时 ,返回 Date 对象的小时 (0 ~ 23)
+      var minutes = date.getMinutes(); //分钟 ,返回 Date 对象的分钟 (0 ~ 59)
+      var seconds = date.getSeconds(); //秒 ,返回 Date 对象的秒数 (0 ~ 59)   
+      //获取当前系统时间  
+      var currentDate = year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds; //修改月份格式
+      if (month >= 1 && month <= 9) {month = "0" + month;}
+      //修改日期格式
+      if (day >= 0 && day <= 9) {
+        day = "0" + day;
+      }
+
+      //修改小时格式
+      if (hours >= 0 && hours <= 9) {
+        hours = "0" + hours;
+      }
+
+      //修改分钟格式
+      if (minutes >= 0 && minutes <= 9) {
+        minutes = "0" + minutes;
+      }
+      //修改秒格式
+      if (seconds >= 0 && seconds <= 9) {
+        seconds = "0" + seconds;
+      }
+      //获取当前系统时间  格式(yyyy-mm-dd hh:mm:ss)
+      var currentFormatDate = year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
+      return currentFormatDate;
+    } } };exports.default = _default;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))
 
 /***/ })

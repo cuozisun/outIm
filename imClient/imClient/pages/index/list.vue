@@ -178,7 +178,7 @@
 				//重置未读条数
 				this.$store.commit('setTalkListNoRead',from_id);
 				uni.navigateTo({
-					url: '/pages/index/chat?key='+key
+					url: '/pages/index/chat?key='+key+'&from_id='+from_id
 				})
             }
         }

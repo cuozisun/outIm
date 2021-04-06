@@ -308,7 +308,7 @@ var _vuex = __webpack_require__(/*! vuex */ 12);function ownKeys(object, enumera
       //重置未读条数
       this.$store.commit('setTalkListNoRead', from_id);
       uni.navigateTo({
-        url: '/pages/index/chat?key=' + key });
+        url: '/pages/index/chat?key=' + key + '&from_id=' + from_id });
 
     } } };exports.default = _default;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 1)["default"]))

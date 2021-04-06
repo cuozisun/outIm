@@ -8,7 +8,10 @@
 					console.log(e);
 					let statusBar = 0;//状态栏高度
 					let customBar = 0;//导航栏高度
+					let basepx = 0;
 					
+					//计算rpx换算基数
+					basepx = e.screenWidth/750;
 					
 					// #ifdef MP
 					statusBar = e.statusBarHeight;
@@ -23,8 +26,13 @@
 					// #ifdef MP-WEIXIN
 					statusBar = e.statusBarHeight
 					// @ts-ignore
+					//该api获取的是胶囊的位置信息
 					const customs = uni.getMenuButtonBoundingClientRect();
-					customBar = custom.bottom + custom.top - e.statusBarHeight;
+					var customstop = customs.top 
+					var customsheight = customs.height 
+					var customsbottom = customs.bottom 
+					customBar = customstop + customsbottom -  e.statusBarHeight + 4 ;
+					// customBar = custom.bottom + custom.top - e.statusBarHeight;
 					// #endif
 
 
@@ -49,8 +57,8 @@
 					console.log(statusBar);
 					console.log(customBar);
 
-					Vue.prototype.scroolHeight = e.screenHeight - 50 ;
-					console.log(Vue.prototype.scroolHeight)
+					// Vue.prototype.scroolHeight = e.screenHeight - 50 ;
+					// console.log(Vue.prototype.scroolHeight)
 					// #ifndef MP
 					Vue.prototype.StatusBar = e.statusBarHeight;
 					if (e.platform == 'android') {
@@ -71,6 +79,9 @@
 					Vue.prototype.StatusBar = e.statusBarHeight;
 					Vue.prototype.CustomBar = e.statusBarHeight + e.titleBarHeight;
 					// #endif
+					//计算聊天页面可滚动高度
+					Vue.prototype.scroolHeight = e.screenHeight - customBar - Math.floor(basepx*100);
+					console.log(Vue.prototype.scroolHeight)
 				}
 			})
 			var socket_flag = false;
