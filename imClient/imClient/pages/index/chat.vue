@@ -139,9 +139,11 @@
         watch: {
             'socketMsgs': {
                 //处理接收到的消息
-                handler: function() {
+                handler: function(e) {
+					console.log(e)
                     let that = this
                     let sMsg = that.socketMsgs
+					// that.$store.commit('saveTalkData',{data:{from_id:'10',type:1,date:'1991-06-02',data:'2222'}});
                     console.log('聊天页面的接收')
                     
                 }
@@ -169,6 +171,8 @@
 				if (data === '') {
 					return
 				}
+				console.log(that.uid)
+				that.$store.commit('saveTalkData',{data:{from_id:that.from_id,type:2,date:that.makeDate(),data:data}});
 				server.postJSON('/api/sendToUid',{
 					uid:that.uid,
 					otheruid:that.from_id,
@@ -176,7 +180,9 @@
 					type:1,
 				},function(res){
 					//result.data.from_id, result.data.type, result.data.data, result.data.date
-					that.$store.commit('saveTalkData',{data:{from_id:that.from_id,type:1,date:that.makeDate(),data:data}});
+					uni.pageScrollTo({
+						selector : '#bottom'
+					})
 					// console.log(res);
 					//将发送内容插入到本地存储中
 				})
