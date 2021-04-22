@@ -822,7 +822,7 @@ function initData(vueOptions, context) {
     try {
       data = data.call(context); // 支持 Vue.prototype 上挂的数据
     } catch (e) {
-      if (Object({"NODE_ENV":"development","VUE_APP_NAME":"imClient","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG) {
+      if (Object({"VUE_APP_NAME":"imClient","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG) {
         console.warn('根据 Vue 的 data 函数初始化小程序 data 失败，请尽量确保 data 函数中不访问 vm 对象，否则可能影响首次数据渲染速度。', data);
       }
     }
@@ -7323,7 +7323,7 @@ function type(obj) {
 
 function flushCallbacks$1(vm) {
     if (vm.__next_tick_callbacks && vm.__next_tick_callbacks.length) {
-        if (Object({"NODE_ENV":"development","VUE_APP_NAME":"imClient","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG) {
+        if (Object({"VUE_APP_NAME":"imClient","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG) {
             var mpInstance = vm.$scope;
             console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + vm._uid +
                 ']:flushCallbacks[' + vm.__next_tick_callbacks.length + ']');
@@ -7344,14 +7344,14 @@ function nextTick$1(vm, cb) {
     //1.nextTick 之前 已 setData 且 setData 还未回调完成
     //2.nextTick 之前存在 render watcher
     if (!vm.__next_tick_pending && !hasRenderWatcher(vm)) {
-        if(Object({"NODE_ENV":"development","VUE_APP_NAME":"imClient","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG){
+        if(Object({"VUE_APP_NAME":"imClient","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG){
             var mpInstance = vm.$scope;
             console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + vm._uid +
                 ']:nextVueTick');
         }
         return nextTick(cb, vm)
     }else{
-        if(Object({"NODE_ENV":"development","VUE_APP_NAME":"imClient","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG){
+        if(Object({"VUE_APP_NAME":"imClient","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG){
             var mpInstance$1 = vm.$scope;
             console.log('[' + (+new Date) + '][' + (mpInstance$1.is || mpInstance$1.route) + '][' + vm._uid +
                 ']:nextMPTick');
@@ -7437,7 +7437,7 @@ var patch = function(oldVnode, vnode) {
     });
     var diffData = this.$shouldDiffData === false ? data : diff(data, mpData);
     if (Object.keys(diffData).length) {
-      if (Object({"NODE_ENV":"development","VUE_APP_NAME":"imClient","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG) {
+      if (Object({"VUE_APP_NAME":"imClient","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG) {
         console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + this._uid +
           ']差量更新',
           JSON.stringify(diffData));
@@ -8135,18 +8135,33 @@ var store = new _vuex.default.Store({
     },
 
     saveTalkData: function saveTalkData(state, result) {
-      // console.log(result)
+      //根据结果中的type区分各种消息类型
+      /* 
+      1.接收到普通消息
+      2.发送普通消息(只用于移动端,并不发送)
+      
+      */
       var that = this;
+      console.log(result);
+      if (that.state.talkList['user_' + result.data.from_id] !== undefined) {
+        //旧会话改变列表顺序
+        that.commit('findPosition', result);
+      } else if (that.state.talkList['user_' + result.data.from_id] === undefined) {
+        //新会话
+        that.commit('changeList', result);
+      }
       //构建插入数据
       var from_id = result.data.from_id;
       var uid = state.uid;
       var key = Math.max(from_id, uid) + '_' + Math.min(from_id, uid);
       var inserdata = {};
       switch (result.data.type) {
-        case 1:
+        case 1: //普通聊天接收
           inserdata = '{"content":"' + result.data.data + '","postid":"' + from_id + '","date":"' + result.data.date + '","type":"' + result.data.type + '"}';
           break;
-
+        case 2: //普通聊天发送
+          inserdata = '{"content":"' + result.data.data + '","postid":"' + state.uid + '","date":"' + result.data.date + '","type":"' + result.data.type + '"}';
+          break;
         default:
           inserdata = '{"content":"' + result.data.data + '","postid":"' + from_id + '","date":"' + result.data.date + '","type":"' + result.data.type + '"}';
           break;}
@@ -8236,13 +8251,7 @@ var store = new _vuex.default.Store({
               break;
             case '6006': //接到他人发送消息
               //判断发信息用户是否在列表中
-              if (that.state.talkList['user_' + result.data.from_id] !== undefined) {
-                //旧会话改变列表顺序
-                that.commit('findPosition', result);
-              } else if (that.state.talkList['user_' + result.data.from_id] === undefined) {
-                //新会话
-                that.commit('changeList', result);
-              }
+
               //存储聊天内容
               that.commit('saveTalkData', result);
 

@@ -314,18 +314,24 @@ var app = getApp();var _default = { data: function data() {return { scroolHeight
       uni.createSelectorQuery().select('#bottom').boundingClientRect(function (rect) {//聊天记录高度
         if (rect.bottom - that.scroolHeight * 2 <= 0) {// 使页面滚动到底部
           uni.pageScrollTo({ selector: '#bottom' });}}).exec();return this.$store.getters.socketMsgs;} }), watch: { 'socketMsgs': { //处理接收到的消息
-      handler: function handler() {var that = this;var sMsg = that.socketMsgs;console.log('聊天页面的接收');} } }, methods: { regiest: function regiest() {}, login: function login() {}, InputFocus: function InputFocus(e) {this.InputBottom = e.detail.height;}, InputBlur: function InputBlur(e) {this.InputBottom = 0;}, formSubmit: function formSubmit(e) {var that = this;var data = e.detail.value.msg;if (data === '') {return;}_server.default.postJSON('/api/sendToUid', { uid: that.uid, otheruid: that.from_id, data: data, type: 1 }, function (res) {//result.data.from_id, result.data.type, result.data.data, result.data.date
-        that.$store.commit('saveTalkData', { data: { from_id: that.from_id, type: 1, date: that.makeDate(), data: data } }); // console.log(res);
+      handler: function handler(e) {console.log(e);var that = this;var sMsg = that.socketMsgs; // that.$store.commit('saveTalkData',{data:{from_id:'10',type:1,date:'1991-06-02',data:'2222'}});
+        console.log('聊天页面的接收');} } }, methods: { regiest: function regiest() {}, login: function login() {}, InputFocus: function InputFocus(e) {this.InputBottom = e.detail.height;}, InputBlur: function InputBlur(e) {this.InputBottom = 0;}, formSubmit: function formSubmit(e) {var that = this;var data = e.detail.value.msg;if (data === '') {return;}console.log(that.uid);that.$store.commit('saveTalkData', { data: { from_id: that.from_id, type: 2, date: that.makeDate(), data: data } });_server.default.postJSON('/api/sendToUid', { uid: that.uid, otheruid: that.from_id, data: data, type: 1 }, function (res) {//result.data.from_id, result.data.type, result.data.data, result.data.date
+        uni.pageScrollTo({ selector: '#bottom' }); // console.log(res);
         //将发送内容插入到本地存储中
-      });}, makeDate: function makeDate() {var date = new Date();var year = date.getFullYear(); //年 ,从 Date 对象以四位数字返回年份
+      });}, makeDate: function makeDate() {var date = new Date();
+      var year = date.getFullYear(); //年 ,从 Date 对象以四位数字返回年份
       var month = date.getMonth() + 1; //月 ,从 Date 对象返回月份 (0 ~ 11) ,date.getMonth()比实际月份少 1 个月
       var day = date.getDate(); //日 ,从 Date 对象返回一个月中的某一天 (1 ~ 31)
       var hours = date.getHours(); //小时 ,返回 Date 对象的小时 (0 ~ 23)
       var minutes = date.getMinutes(); //分钟 ,返回 Date 对象的分钟 (0 ~ 59)
       var seconds = date.getSeconds(); //秒 ,返回 Date 对象的秒数 (0 ~ 59)   
       //获取当前系统时间  
-      var currentDate = year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds; //修改月份格式
-      if (month >= 1 && month <= 9) {month = "0" + month;}
+      var currentDate = year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
+      //修改月份格式
+      if (month >= 1 && month <= 9) {
+        month = "0" + month;
+      }
+
       //修改日期格式
       if (day >= 0 && day <= 9) {
         day = "0" + day;
